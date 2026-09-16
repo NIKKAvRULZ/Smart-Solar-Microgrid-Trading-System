@@ -1,6 +1,18 @@
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.Configure<SolarGrid.Api.Configuration.SolarGridDatabaseSettings>(
+    builder.Configuration.GetSection("SolarGridDatabase"));
+
+builder.Services.AddSingleton<MongoDB.Driver.IMongoClient>(s =>
+{
+    var settings = builder.Configuration.GetSection("SolarGridDatabase").Get<SolarGrid.Api.Configuration.SolarGridDatabaseSettings>();
+    return new MongoDB.Driver.MongoClient(settings!.ConnectionString);
+});
+
+// Register Repositories and Services
+builder.Services.AddScoped<SolarGrid.Api.Repositories.IStationRepository, SolarGrid.Api.Repositories.StationRepository>();
+builder.Services.AddScoped<SolarGrid.Api.Services.StationService>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
