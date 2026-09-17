@@ -1,5 +1,6 @@
 package com.team.smartsolar;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.Toast;
@@ -12,6 +13,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.team.smartsolar.models.Station;
 import com.team.smartsolar.network.RetrofitClient;
 import com.team.smartsolar.network.SolarApi;
@@ -38,15 +40,7 @@ public class DashboardActivity extends AppCompatActivity implements OnMapReadyCa
             mapFragment.getMapAsync(this);
         }
 
-        // Setup Logout Button
-        Button btnLogout = findViewById(R.id.btnLogout);
-        btnLogout.setOnClickListener(v -> {
-            com.team.smartsolar.database.DatabaseHelper db = new com.team.smartsolar.database.DatabaseHelper(this);
-            db.logoutUser();
-            finish();
-        });
-
-        // --- NEW: Setup Refresh Stations Button ---
+        // --- Setup Refresh Stations Button ---
         Button btnViewStations = findViewById(R.id.btnViewStations);
         btnViewStations.setOnClickListener(v -> {
             if (mMap != null) {
@@ -55,6 +49,29 @@ public class DashboardActivity extends AppCompatActivity implements OnMapReadyCa
             } else {
                 Toast.makeText(this, "Map is still loading", Toast.LENGTH_SHORT).show();
             }
+        });
+
+        // --- NEW: Setup Bottom Navigation ---
+        BottomNavigationView bottomNav = findViewById(R.id.bottomNavigation);
+        bottomNav.setSelectedItemId(R.id.nav_dashboard);
+
+        bottomNav.setOnItemSelectedListener(item -> {
+            int itemId = item.getItemId();
+
+            if (itemId == R.id.nav_dashboard) {
+                return true;
+            }
+            else if (itemId == R.id.nav_booking) {
+                startActivity(new Intent(DashboardActivity.this, CreateBookingActivity.class));
+                overridePendingTransition(0, 0);
+                return true;
+            }
+            else if (itemId == R.id.nav_profile) {
+                startActivity(new Intent(DashboardActivity.this, ProfileActivity.class));
+                overridePendingTransition(0, 0);
+                return true;
+            }
+            return false;
         });
     }
 
@@ -67,27 +84,25 @@ public class DashboardActivity extends AppCompatActivity implements OnMapReadyCa
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultLocation, 12f));
     }
 
-    // --- NEW: Retrofit Network Call ---
+    // --- Retrofit Network Call ---
     private void fetchStationsFromApi() {
         SolarApi api = RetrofitClient.getClient().create(SolarApi.class);
         Call<List<Station>> call = api.getStations();
 
-        // enqueue() runs asynchronously on a background thread
         call.enqueue(new Callback<List<Station>>() {
             @Override
             public void onResponse(Call<List<Station>> call, Response<List<Station>> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    mMap.clear(); // Remove old markers before adding new ones
+                    mMap.clear();
 
                     List<Station> stations = response.body();
                     for (Station station : stations) {
                         LatLng position = new LatLng(station.getLatitude(), station.getLongitude());
 
-                        // Drop a new marker on the map for each station
                         mMap.addMarker(new MarkerOptions()
                                 .position(position)
                                 .title(station.getName())
-                                .snippet("Capacity: " + station.getCapacity() + " kW")); //
+                                .snippet("Capacity: " + station.getCapacity() + " kW"));
                     }
                     Toast.makeText(DashboardActivity.this, "Loaded " + stations.size() + " stations", Toast.LENGTH_SHORT).show();
                 } else {
@@ -97,7 +112,6 @@ public class DashboardActivity extends AppCompatActivity implements OnMapReadyCa
 
             @Override
             public void onFailure(Call<List<Station>> call, Throwable t) {
-                // This triggers if the server is unreachable or offline
                 Toast.makeText(DashboardActivity.this, "Network Error: " + t.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
