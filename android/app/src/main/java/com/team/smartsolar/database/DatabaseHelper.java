@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.content.ContentValues;
+import android.database.Cursor;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "SmartSolarLocal.db";
@@ -106,6 +107,45 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         long result = db.insertWithOnConflict(TABLE_STATION_CACHE, null, values, SQLiteDatabase.CONFLICT_REPLACE);
         return result != -1;
+    }
+
+    // --- 4. Read Session Data ---
+    // Retrieves the active token to send to Sasmitha's API
+    public String getSessionToken() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT token FROM " + TABLE_SESSION + " LIMIT 1", null);
+        String token = null;
+        if (cursor.moveToFirst()) {
+            token = cursor.getString(0); // 0 is the first column in our SELECT statement
+        }
+        cursor.close();
+        return token;
+    }
+
+    // Retrieves the role to determine which dashboard to show
+    public String getSessionRole() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT role FROM " + TABLE_SESSION + " LIMIT 1", null);
+        String role = null;
+        if (cursor.moveToFirst()) {
+            role = cursor.getString(0);
+        }
+        cursor.close();
+        return role;
+    }
+
+    // --- 5. Read Station Data for Maps ---
+    // Returns a Cursor containing all cached stations to draw map markers
+    public Cursor getAllCachedStations() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.rawQuery("SELECT * FROM " + TABLE_STATION_CACHE, null);
+    }
+
+    // --- 6. Clear Session (For Logout) ---
+    public void logoutUser() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("DELETE FROM " + TABLE_SESSION);
+        db.execSQL("DELETE FROM " + TABLE_USER_CACHE);
     }
 
 }
