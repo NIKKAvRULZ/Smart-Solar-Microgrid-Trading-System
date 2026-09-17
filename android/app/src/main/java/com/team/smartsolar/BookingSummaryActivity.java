@@ -4,10 +4,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.TextView;
-import androidx.appcompat.app.AppCompatActivity;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-public class BookingSummaryActivity extends AppCompatActivity {
+public class BookingSummaryActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,29 +41,6 @@ public class BookingSummaryActivity extends AppCompatActivity {
         });
 
         // --- Setup Bottom Navigation ---
-        BottomNavigationView bottomNav = findViewById(R.id.bottomNavigation);
-
-        // Safety check: ensure the nav bar actually exists in the XML layout before setting it up
-        if (bottomNav != null) {
-            bottomNav.setSelectedItemId(R.id.nav_booking); // Highlight Booking tab
-
-            bottomNav.setOnItemSelectedListener(item -> {
-                int itemId = item.getItemId();
-                if (itemId == R.id.nav_dashboard) {
-                    // FIXED: Changed context to BookingSummaryActivity.this
-                    startActivity(new Intent(BookingSummaryActivity.this, DashboardActivity.class));
-                    overridePendingTransition(0, 0);
-                    return true;
-                } else if (itemId == R.id.nav_booking) {
-                    return true; // Already here
-                } else if (itemId == R.id.nav_profile) {
-                    // FIXED: Changed context to BookingSummaryActivity.this
-                    startActivity(new Intent(BookingSummaryActivity.this, ProfileActivity.class));
-                    overridePendingTransition(0, 0);
-                    return true;
-                }
-                return false;
-            });
-        }
+        setupBottomNavigation(R.id.nav_booking);
     }
 }

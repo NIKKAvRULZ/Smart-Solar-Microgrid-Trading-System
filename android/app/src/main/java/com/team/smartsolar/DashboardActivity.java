@@ -1,11 +1,9 @@
 package com.team.smartsolar;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -13,7 +11,6 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.team.smartsolar.models.Station;
 import com.team.smartsolar.network.RetrofitClient;
 import com.team.smartsolar.network.SolarApi;
@@ -24,7 +21,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class DashboardActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class DashboardActivity extends BaseActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
 
@@ -51,28 +48,8 @@ public class DashboardActivity extends AppCompatActivity implements OnMapReadyCa
             }
         });
 
-        // --- NEW: Setup Bottom Navigation ---
-        BottomNavigationView bottomNav = findViewById(R.id.bottomNavigation);
-        bottomNav.setSelectedItemId(R.id.nav_dashboard);
-
-        bottomNav.setOnItemSelectedListener(item -> {
-            int itemId = item.getItemId();
-
-            if (itemId == R.id.nav_dashboard) {
-                return true;
-            }
-            else if (itemId == R.id.nav_booking) {
-                startActivity(new Intent(DashboardActivity.this, CreateBookingActivity.class));
-                overridePendingTransition(0, 0);
-                return true;
-            }
-            else if (itemId == R.id.nav_profile) {
-                startActivity(new Intent(DashboardActivity.this, ProfileActivity.class));
-                overridePendingTransition(0, 0);
-                return true;
-            }
-            return false;
-        });
+        // --- Setup Bottom Navigation ---
+        setupBottomNavigation(R.id.nav_dashboard);
     }
 
     @Override

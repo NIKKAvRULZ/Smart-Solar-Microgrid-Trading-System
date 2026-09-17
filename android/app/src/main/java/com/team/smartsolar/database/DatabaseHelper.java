@@ -5,15 +5,22 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.content.ContentValues;
 import android.database.Cursor;
+
+import com.team.smartsolar.models.Booking;
+import java.util.ArrayList;
+import java.util.List;
+
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "SmartSolarLocal.db";
-    private static final int DATABASE_VERSION = 1;
+    // Bumped to version 3 to trigger the onUpgrade method and build the new table
+    private static final int DATABASE_VERSION = 3;
 
     // Table Names
     public static final String TABLE_SESSION = "Session";
     public static final String TABLE_USER_CACHE = "UserProfileCache";
     public static final String TABLE_STATION_CACHE = "StationCache";
+    public static final String TABLE_MOCK_BOOKINGS = "mock_bookings"; // NEW
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -49,10 +56,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "status TEXT, " +
                 "lastSyncedAt INTEGER)";
 
+        // 4. Mock Bookings Table (Temporary persistence until API is ready)
+        String createMockBookingsTable = "CREATE TABLE " + TABLE_MOCK_BOOKINGS + " (" +
+                "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                "station TEXT, " +
+                "date TEXT, " +
+                "time TEXT, " +
+                "energy TEXT, " +
+                "status TEXT)";
+
         // Execute the SQL to create the tables
         db.execSQL(createSessionTable);
         db.execSQL(createUserCacheTable);
         db.execSQL(createStationCacheTable);
+        db.execSQL(createMockBookingsTable);
     }
 
     @Override
@@ -61,6 +78,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_SESSION);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_USER_CACHE);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_STATION_CACHE);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_MOCK_BOOKINGS);
         onCreate(db);
     }
 
@@ -109,7 +127,44 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return result != -1;
     }
 
-    // --- 4. Read Session Data ---
+    // --- 4. Save Mock Booking ---
+    public void saveMockBooking(String station, String date, String startTime, String endTime, String energy) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("station", station);
+        values.put("date", date);
+        values.put("time", startTime + " - " + endTime);
+        values.put("energy", energy);
+        values.put("status", "Pending"); // Default status
+
+        db.insert(TABLE_MOCK_BOOKINGS, null, values);
+        db.close();
+    }
+
+    // --- 5. Fetch Mock Bookings ---
+    public List<Booking> getMockBookings() {
+        List<Booking> bookingList = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_MOCK_BOOKINGS + " ORDER BY id DESC", null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                String station = cursor.getString(cursor.getColumnIndexOrThrow("station"));
+                String date = cursor.getString(cursor.getColumnIndexOrThrow("date"));
+                String time = cursor.getString(cursor.getColumnIndexOrThrow("time"));
+                String energy = cursor.getString(cursor.getColumnIndexOrThrow("energy"));
+                String status = cursor.getString(cursor.getColumnIndexOrThrow("status"));
+
+                bookingList.add(new Booking(station, date, time, energy, status));
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        db.close();
+        return bookingList;
+    }
+
+    // --- 6. Read Session Data ---
     // Retrieves the active token to send to Sasmitha's API
     public String getSessionToken() {
         SQLiteDatabase db = this.getReadableDatabase();
@@ -134,18 +189,39 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return role;
     }
 
-    // --- 5. Read Station Data for Maps ---
+    // --- 7. Read Station Data for Maps ---
     // Returns a Cursor containing all cached stations to draw map markers
     public Cursor getAllCachedStations() {
         SQLiteDatabase db = this.getReadableDatabase();
         return db.rawQuery("SELECT * FROM " + TABLE_STATION_CACHE, null);
     }
 
-    // --- 6. Clear Session (For Logout) ---
+    // --- 8. Clear Session (For Logout) ---
     public void logoutUser() {
         SQLiteDatabase db = this.getWritableDatabase();
         db.execSQL("DELETE FROM " + TABLE_SESSION);
         db.execSQL("DELETE FROM " + TABLE_USER_CACHE);
+    }// --- Update Mock Booking ---
+    public void updateMockBooking(String station, String originalDate, String originalTime, String newDate, String newTime, String newEnergy) {
+        android.database.sqlite.SQLiteDatabase db = this.getWritableDatabase();
+        android.content.ContentValues values = new android.content.ContentValues();
+        values.put("date", newDate);
+        values.put("time", newTime);
+        values.put("energy", newEnergy);
+
+        // Update the row where the station, date, and time match the original booking
+        db.update(TABLE_MOCK_BOOKINGS, values, "station=? AND date=? AND time=?",
+                new String[]{station, originalDate, originalTime});
+        db.close();
     }
 
+    // --- Delete Mock Booking ---
+    public void deleteMockBooking(String station, String date, String time) {
+        android.database.sqlite.SQLiteDatabase db = this.getWritableDatabase();
+
+        // Delete the row matching this booking
+        db.delete(TABLE_MOCK_BOOKINGS, "station=? AND date=? AND time=?",
+                new String[]{station, date, time});
+        db.close();
+    }
 }

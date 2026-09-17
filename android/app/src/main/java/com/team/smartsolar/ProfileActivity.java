@@ -1,13 +1,15 @@
 package com.team.smartsolar;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 
-public class ProfileActivity extends AppCompatActivity {
+import com.team.smartsolar.database.DatabaseHelper;
+
+public class ProfileActivity extends BaseActivity {
 
     private EditText editProfileNic, editProfileName, editProfileEmail;
 
@@ -47,34 +49,17 @@ public class ProfileActivity extends AppCompatActivity {
         // --- Setup Logout Button ---
         Button btnLogout = findViewById(R.id.btnLogout);
         btnLogout.setOnClickListener(v -> {
-            com.team.smartsolar.database.DatabaseHelper db = new com.team.smartsolar.database.DatabaseHelper(this);
+            DatabaseHelper db = new DatabaseHelper(this);
             db.logoutUser();
 
             // Go back to login and clear the activity history
-            android.content.Intent intent = new android.content.Intent(ProfileActivity.this, LoginActivity.class);
-            intent.setFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK | android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
         });
 
         // --- Setup Bottom Navigation ---
-        com.google.android.material.bottomnavigation.BottomNavigationView bottomNav = findViewById(R.id.bottomNavigation);
-        bottomNav.setSelectedItemId(R.id.nav_profile); // Highlight Profile tab
-
-        bottomNav.setOnItemSelectedListener(item -> {
-            int itemId = item.getItemId();
-            if (itemId == R.id.nav_dashboard) {
-                startActivity(new android.content.Intent(ProfileActivity.this, DashboardActivity.class));
-                overridePendingTransition(0, 0);
-                return true;
-            } else if (itemId == R.id.nav_booking) {
-                startActivity(new android.content.Intent(ProfileActivity.this, CreateBookingActivity.class));
-                overridePendingTransition(0, 0);
-                return true;
-            } else if (itemId == R.id.nav_profile) {
-                return true; // Already here
-            }
-            return false;
-        });
+        setupBottomNavigation(R.id.nav_profile);
 
     }
 

@@ -42,4 +42,5 @@ dependencies {
     implementation("com.google.android.gms:play-services-maps:20.0.0")
     implementation("com.squareup.retrofit2:retrofit:3.0.0")
     implementation("com.squareup.retrofit2:converter-gson:3.0.0")
+    implementation("com.journeyapps:zxing-android-embedded:4.3.0")
 }

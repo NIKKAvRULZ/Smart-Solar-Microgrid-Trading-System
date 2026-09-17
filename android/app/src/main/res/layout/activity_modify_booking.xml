@@ -5,7 +5,6 @@
     android:layout_height="match_parent"
     android:background="#FAFAFA">
 
-    <!-- Scrollable Booking Form -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -22,7 +21,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Reserve Energy"
+                android:text="Modify Booking"
                 android:textSize="32sp"
                 android:textStyle="bold"
                 android:textColor="#333333"
@@ -31,34 +30,30 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Book a microgrid slot (max 7 days in advance)"
+                android:text="Changes are blocked within 12 hours of the start time."
                 android:textSize="14sp"
-                android:textColor="#666666"
+                android:textColor="#D32F2F"
                 android:layout_marginBottom="32dp" />
 
+            <!-- Station ID (Locked, users shouldn't change the station itself) -->
             <EditText
-                android:id="@+id/inputStationId"
+                android:id="@+id/editStationId"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
-                android:hint="Station ID (e.g., ST-001)"
-                android:inputType="text"
+                android:enabled="false"
                 android:background="@android:drawable/edit_text"
                 android:paddingStart="12dp"
-                android:paddingEnd="12dp"
                 android:layout_marginBottom="16dp"/>
 
             <EditText
-                android:id="@+id/inputBookingDate"
+                android:id="@+id/editBookingDate"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
-                android:hint="Date (YYYY-MM-DD)"
                 android:focusable="false"
                 android:background="@android:drawable/edit_text"
                 android:paddingStart="12dp"
-                android:paddingEnd="12dp"
                 android:layout_marginBottom="16dp"/>
 
-            <!-- Side-by-side Time Slots -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -66,51 +61,55 @@
                 android:layout_marginBottom="16dp">
 
                 <EditText
-                    android:id="@+id/inputStartTime"
+                    android:id="@+id/editStartTime"
                     android:layout_width="0dp"
                     android:layout_height="50dp"
                     android:layout_weight="1"
-                    android:hint="Start Time"
                     android:focusable="false"
                     android:background="@android:drawable/edit_text"
                     android:paddingStart="12dp"
                     android:layout_marginEnd="8dp"/>
 
                 <EditText
-                    android:id="@+id/inputEndTime"
+                    android:id="@+id/editEndTime"
                     android:layout_width="0dp"
                     android:layout_height="50dp"
                     android:layout_weight="1"
-                    android:hint="End Time"
                     android:focusable="false"
                     android:background="@android:drawable/edit_text"
                     android:paddingStart="12dp" />
             </LinearLayout>
 
             <EditText
-                android:id="@+id/inputEnergyAmount"
+                android:id="@+id/editEnergyAmount"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
-                android:hint="Energy Amount (kWh)"
                 android:inputType="numberDecimal"
                 android:background="@android:drawable/edit_text"
                 android:paddingStart="12dp"
-                android:paddingEnd="12dp"
                 android:layout_marginBottom="32dp"/>
 
             <Button
-                android:id="@+id/btnConfirmBooking"
+                android:id="@+id/btnUpdateBooking"
                 android:layout_width="match_parent"
                 android:layout_height="55dp"
-                android:text="CONFIRM BOOKING"
+                android:text="UPDATE BOOKING"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 android:backgroundTint="#0066CC"
                 android:layout_marginBottom="16dp"/>
+
+            <Button
+                android:id="@+id/btnCancelBooking"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:text="CANCEL BOOKING"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:backgroundTint="#D32F2F" />
         </LinearLayout>
     </ScrollView>
 
-    <!-- Pinned Bottom Navigation -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigation"
         android:layout_width="match_parent"
