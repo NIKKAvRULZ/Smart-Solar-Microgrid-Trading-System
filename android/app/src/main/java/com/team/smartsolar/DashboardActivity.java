@@ -2,6 +2,7 @@ package com.team.smartsolar;
 
 import android.os.Bundle;
 import android.widget.Button;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -11,6 +12,15 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.team.smartsolar.models.Station;
+import com.team.smartsolar.network.RetrofitClient;
+import com.team.smartsolar.network.SolarApi;
+
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class DashboardActivity extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -21,7 +31,7 @@ public class DashboardActivity extends AppCompatActivity implements OnMapReadyCa
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dashboard);
 
-        // Find the map fragment and initialize it asynchronously
+        // Initialize Map
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.mapPlaceholder);
         if (mapFragment != null) {
@@ -31,10 +41,20 @@ public class DashboardActivity extends AppCompatActivity implements OnMapReadyCa
         // Setup Logout Button
         Button btnLogout = findViewById(R.id.btnLogout);
         btnLogout.setOnClickListener(v -> {
-            // Clear mock session and return to Login
             com.team.smartsolar.database.DatabaseHelper db = new com.team.smartsolar.database.DatabaseHelper(this);
             db.logoutUser();
             finish();
+        });
+
+        // --- NEW: Setup Refresh Stations Button ---
+        Button btnViewStations = findViewById(R.id.btnViewStations);
+        btnViewStations.setOnClickListener(v -> {
+            if (mMap != null) {
+                Toast.makeText(this, "Fetching live data...", Toast.LENGTH_SHORT).show();
+                fetchStationsFromApi();
+            } else {
+                Toast.makeText(this, "Map is still loading", Toast.LENGTH_SHORT).show();
+            }
         });
     }
 
@@ -42,11 +62,44 @@ public class DashboardActivity extends AppCompatActivity implements OnMapReadyCa
     public void onMapReady(@NonNull GoogleMap googleMap) {
         mMap = googleMap;
 
-        // Set the default camera position to the SLIIT Malabe Campus area
+        // Center map over Sri Lanka (Malabe region)
         LatLng defaultLocation = new LatLng(6.9147, 79.9724);
-        mMap.addMarker(new MarkerOptions().position(defaultLocation).title("You are here"));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultLocation, 12f));
+    }
 
-        // Zoom level 15 is a good neighborhood-level view
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultLocation, 15f));
+    // --- NEW: Retrofit Network Call ---
+    private void fetchStationsFromApi() {
+        SolarApi api = RetrofitClient.getClient().create(SolarApi.class);
+        Call<List<Station>> call = api.getStations();
+
+        // enqueue() runs asynchronously on a background thread
+        call.enqueue(new Callback<List<Station>>() {
+            @Override
+            public void onResponse(Call<List<Station>> call, Response<List<Station>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    mMap.clear(); // Remove old markers before adding new ones
+
+                    List<Station> stations = response.body();
+                    for (Station station : stations) {
+                        LatLng position = new LatLng(station.getLatitude(), station.getLongitude());
+
+                        // Drop a new marker on the map for each station
+                        mMap.addMarker(new MarkerOptions()
+                                .position(position)
+                                .title(station.getName())
+                                .snippet("Capacity: " + station.getCapacity() + " kW")); //
+                    }
+                    Toast.makeText(DashboardActivity.this, "Loaded " + stations.size() + " stations", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(DashboardActivity.this, "Failed to load data. Is API running?", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Station>> call, Throwable t) {
+                // This triggers if the server is unreachable or offline
+                Toast.makeText(DashboardActivity.this, "Network Error: " + t.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
     }
 }
