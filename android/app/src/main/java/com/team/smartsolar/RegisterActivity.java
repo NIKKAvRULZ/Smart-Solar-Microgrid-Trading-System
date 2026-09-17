@@ -1,5 +1,6 @@
 package com.team.smartsolar;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -7,6 +8,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.team.smartsolar.database.DatabaseHelper;
 
 public class RegisterActivity extends AppCompatActivity {
 
@@ -65,6 +68,20 @@ public class RegisterActivity extends AppCompatActivity {
             Toast.makeText(this, "Please enter a valid NIC", Toast.LENGTH_SHORT).show();
             return;
         }
+        // --- MOCK REGISTRATION BYPASS ---
+        DatabaseHelper dbHelper = new DatabaseHelper(this);
+
+        // 1. Save the mock user profile to SQLite
+        dbHelper.saveUserProfile(nic, name, email, "Prosumer", "Active");
+
+        // 2. Save a fake login session
+        dbHelper.saveSession(nic, "Prosumer", "mock_token_12345");
+
+        // 3. Show success and navigate to Dashboard
+        Toast.makeText(this, "Mock Registration Success!", Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent(RegisterActivity.this, DashboardActivity.class);
+        startActivity(intent);
+        finish();
 
         /*
          * TODO: Next Steps for API Integration
