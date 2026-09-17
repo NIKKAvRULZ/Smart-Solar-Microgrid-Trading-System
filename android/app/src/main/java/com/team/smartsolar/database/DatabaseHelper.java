@@ -3,7 +3,7 @@ package com.team.smartsolar.database;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-
+import android.content.ContentValues;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "SmartSolarLocal.db";
@@ -62,4 +62,50 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_STATION_CACHE);
         onCreate(db);
     }
+
+    // --- 1. Save Login Session ---
+    public boolean saveSession(String nic, String role, String token) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("nic", nic);
+        values.put("role", role);
+        values.put("token", token);
+        // Clear any old session first so only one user is logged in at a time
+        db.execSQL("DELETE FROM " + TABLE_SESSION);
+
+        long result = db.insert(TABLE_SESSION, null, values);
+        return result != -1; // Returns true if insertion was successful
+    }
+
+    // --- 2. Save Prosumer Profile Cache ---
+    public boolean saveUserProfile(String nic, String name, String email, String role, String status) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("nic", nic);
+        values.put("name", name);
+        values.put("email", email);
+        values.put("role", role);
+        values.put("status", status);
+
+        // Using replace so if the NIC already exists, it updates the cached profile
+        long result = db.insertWithOnConflict(TABLE_USER_CACHE, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+        return result != -1;
+    }
+
+    // --- 3. Save Station Map Data Cache ---
+    public boolean saveStation(String stationId, String name, double latitude, double longitude, double capacity, int availableSlots, String status) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("stationId", stationId);
+        values.put("name", name);
+        values.put("latitude", latitude);
+        values.put("longitude", longitude);
+        values.put("capacity", capacity);
+        values.put("availableSlots", availableSlots);
+        values.put("status", status);
+
+        long result = db.insertWithOnConflict(TABLE_STATION_CACHE, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+        return result != -1;
+    }
+
 }
