@@ -13,6 +13,10 @@ builder.Services.AddSingleton<MongoDB.Driver.IMongoClient>(s =>
 // Register Repositories and Services
 builder.Services.AddScoped<SolarGrid.Api.Repositories.IStationRepository, SolarGrid.Api.Repositories.StationRepository>();
 builder.Services.AddScoped<SolarGrid.Api.Services.StationService>();
+builder.Services.AddScoped<SolarGrid.Api.Repositories.IUserRepository, SolarGrid.Api.Repositories.UserRepository>();
+builder.Services.AddScoped<SolarGrid.Api.Services.UserService>();
+builder.Services.AddScoped<SolarGrid.Api.Repositories.IBookingRepository, SolarGrid.Api.Repositories.BookingRepository>();
+builder.Services.AddScoped<SolarGrid.Api.Services.BookingService>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -22,11 +26,8 @@ builder.Services.AddSwaggerGen();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 
