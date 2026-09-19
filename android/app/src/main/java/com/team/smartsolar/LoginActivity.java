@@ -10,6 +10,14 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.team.smartsolar.database.DatabaseHelper;
+import com.team.smartsolar.models.LoginRequest;
+import com.team.smartsolar.models.LoginResponse;
+import com.team.smartsolar.network.RetrofitClient;
+import com.team.smartsolar.network.SolarApi;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -35,26 +43,45 @@ public class LoginActivity extends AppCompatActivity {
 
                 if (nic.isEmpty() || password.isEmpty()) {
                     Toast.makeText(LoginActivity.this, "Please enter NIC and Password", Toast.LENGTH_SHORT).show();
-                } else {
-                    // --- MOCK LOGIN BYPASS ---
-                    // 1. Save a fake session to our local SQLite DB
-                    DatabaseHelper dbHelper = new DatabaseHelper(LoginActivity.this);
-                    dbHelper.saveSession(nic, "Prosumer", "mock_token_12345");
-
-                    // 2. Show success message
-                    Toast.makeText(LoginActivity.this, "Mock Login Success!", Toast.LENGTH_SHORT).show();
-
-                    // 3. Navigate to the Dashboard
-                    Intent intent = new Intent(LoginActivity.this, DashboardActivity.class);
-                    startActivity(intent);
-
-                    // 4. Close the login screen so the back button doesn't bring them back here
-                    finish();
+                    return;
                 }
+
+                // 1. Create the request body
+                LoginRequest request = new LoginRequest(nic, password);
+
+                // 2. Call the API
+                SolarApi api = RetrofitClient.getClient().create(SolarApi.class);
+                api.login(request).enqueue(new Callback<LoginResponse>() {
+
+                    @Override
+                    public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            String token = response.body().getToken();
+                            String role = response.body().getRole();
+
+                            // Save the real JWT token to SQLite
+                            DatabaseHelper dbHelper = new DatabaseHelper(LoginActivity.this);
+                            dbHelper.saveSession(nic, role, token);
+
+                            Toast.makeText(LoginActivity.this, "Login Successful!", Toast.LENGTH_SHORT).show();
+
+                            // Route to the dashboard
+                            startActivity(new Intent(LoginActivity.this, DashboardActivity.class));
+                            finish(); // Close login screen
+                        } else {
+                            Toast.makeText(LoginActivity.this, "Invalid credentials.", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<LoginResponse> call, Throwable t) {
+                        Toast.makeText(LoginActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_LONG).show();
+                    }
+                });
             }
         });
 
-        // This switches the screen to RegisterActivity
+        // Switches the screen to RegisterActivity
         txtGoToRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

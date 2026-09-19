@@ -9,11 +9,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.team.smartsolar.database.DatabaseHelper;
+import com.team.smartsolar.models.RegisterRequest;
+import com.team.smartsolar.network.RetrofitClient;
+import com.team.smartsolar.network.SolarApi;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class RegisterActivity extends AppCompatActivity {
 
-    // Declare variables for our UI elements
     private EditText inputNic, inputName, inputEmail, inputPassword;
     private Button btnRegister;
     private TextView txtGoToLogin;
@@ -21,9 +26,8 @@ public class RegisterActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_register); // Links this Java file to the XML layout
+        setContentView(R.layout.activity_register);
 
-        // 1. Initialize UI Elements by finding their IDs from the XML
         inputNic = findViewById(R.id.inputNic);
         inputName = findViewById(R.id.inputName);
         inputEmail = findViewById(R.id.inputEmail);
@@ -31,7 +35,6 @@ public class RegisterActivity extends AppCompatActivity {
         btnRegister = findViewById(R.id.btnRegister);
         txtGoToLogin = findViewById(R.id.txtGoToLogin);
 
-        // 2. Set Click Listener for the Register Button
         btnRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -39,58 +42,57 @@ public class RegisterActivity extends AppCompatActivity {
             }
         });
 
-        // 3. Set Click Listener for the "Go To Login" text
         txtGoToLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Placeholder: We will add an Intent to open LoginActivity here later
-                Toast.makeText(RegisterActivity.this, "Navigate to Login clicked", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+                startActivity(intent);
+                finish();
             }
         });
     }
 
-    // 4. Method to extract data and validate
     private void handleRegistration() {
-        // Extract text and remove extra spaces
         String nic = inputNic.getText().toString().trim();
         String name = inputName.getText().toString().trim();
         String email = inputEmail.getText().toString().trim();
         String password = inputPassword.getText().toString().trim();
 
-        // Basic Validation: Ensure no fields are empty
         if (nic.isEmpty() || name.isEmpty() || email.isEmpty() || password.isEmpty()) {
             Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
-            return; // Stop execution if validation fails
+            return;
         }
 
-        // Basic Validation: Ensure NIC is somewhat valid (you can adjust this rule)
         if (nic.length() < 9) {
             Toast.makeText(this, "Please enter a valid NIC", Toast.LENGTH_SHORT).show();
             return;
         }
-        // --- MOCK REGISTRATION BYPASS ---
-        DatabaseHelper dbHelper = new DatabaseHelper(this);
 
-        // 1. Save the mock user profile to SQLite
-        dbHelper.saveUserProfile(nic, name, email, "Prosumer", "Active");
+        // 1. Package the variables into the JSON model expected by the backend
+        // We map NIC to username, and hardcode the role as "Prosumer"
+        RegisterRequest request = new RegisterRequest(nic, password, name, email, "Prosumer");
 
-        // 2. Save a fake login session
-        dbHelper.saveSession(nic, "Prosumer", "mock_token_12345");
+        // 2. Send to C# API endpoint using Retrofit
+        SolarApi api = RetrofitClient.getClient().create(SolarApi.class);
+        api.registerUser(request).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(RegisterActivity.this, "Registration Successful! Please log in.", Toast.LENGTH_LONG).show();
 
-        // 3. Show success and navigate to Dashboard
-        Toast.makeText(this, "Mock Registration Success!", Toast.LENGTH_SHORT).show();
-        Intent intent = new Intent(RegisterActivity.this, DashboardActivity.class);
-        startActivity(intent);
-        finish();
+                    // Route back to Login
+                    Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+                    startActivity(intent);
+                    finish();
+                } else {
+                    Toast.makeText(RegisterActivity.this, "Registration Failed: " + response.code(), Toast.LENGTH_LONG).show();
+                }
+            }
 
-        /*
-         * TODO: Next Steps for API Integration
-         * 1. Package these variables into a JSON object.
-         * 2. Send to Sasmitha's C# API endpoint (e.g., POST /api/prosumers/register) using Retrofit.
-         * 3. Handle the success/error response.
-         */
-
-        // For now, show a success message to prove the data is collected
-        Toast.makeText(this, "Data ready to send for NIC: " + nic, Toast.LENGTH_LONG).show();
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Toast.makeText(RegisterActivity.this, "Network Error: " + t.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
     }
 }

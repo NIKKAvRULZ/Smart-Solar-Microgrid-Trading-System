@@ -3,11 +3,16 @@ package com.team.smartsolar.models;
 import com.google.gson.annotations.SerializedName;
 
 public class Station {
-    @SerializedName("stationId")
-    private String stationId;
+
+    // @SerializedName maps the exact C# JSON keys to your Java variables
+    @SerializedName("id")
+    private String id;
 
     @SerializedName("name")
     private String name;
+
+    @SerializedName("address")
+    private String address;
 
     @SerializedName("latitude")
     private double latitude;
@@ -15,20 +20,18 @@ public class Station {
     @SerializedName("longitude")
     private double longitude;
 
-    @SerializedName("capacity")
-    private double capacity;
-
-    @SerializedName("availableSlots")
-    private int availableSlots;
+    @SerializedName("powerCapacityKw")
+    private double powerCapacityKw;
 
     @SerializedName("status")
     private String status;
 
-    public String getStationId() { return stationId; }
+    // Getters so the Map can read the data
+    public String getId() { return id; }
     public String getName() { return name; }
+    public String getAddress() { return address; }
     public double getLatitude() { return latitude; }
     public double getLongitude() { return longitude; }
-    public double getCapacity() { return capacity; }
-    public int getAvailableSlots() { return availableSlots; }
+    public double getPowerCapacityKw() { return powerCapacityKw; }
     public String getStatus() { return status; }
 }
