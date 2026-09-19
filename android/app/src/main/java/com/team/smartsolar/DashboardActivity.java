@@ -64,7 +64,9 @@ public class DashboardActivity extends BaseActivity implements OnMapReadyCallbac
     // --- Retrofit Network Call ---
     private void fetchStationsFromApi() {
         SolarApi api = RetrofitClient.getClient().create(SolarApi.class);
-        Call<List<Station>> call = api.getStations();
+
+        // This line changes to match the updated SolarApi interface
+        Call<List<Station>> call = api.getNodes();
 
         call.enqueue(new Callback<List<Station>>() {
             @Override
@@ -79,7 +81,7 @@ public class DashboardActivity extends BaseActivity implements OnMapReadyCallbac
                         mMap.addMarker(new MarkerOptions()
                                 .position(position)
                                 .title(station.getName())
-                                .snippet("Capacity: " + station.getCapacity() + " kW"));
+                                .snippet("Capacity: " + station.getPowerCapacityKw() + " kW"));
                     }
                     Toast.makeText(DashboardActivity.this, "Loaded " + stations.size() + " stations", Toast.LENGTH_SHORT).show();
                 } else {

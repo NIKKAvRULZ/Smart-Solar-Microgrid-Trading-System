@@ -1,15 +1,9 @@
 {
   "ExpandedNodes": [
     "",
-    "\\android\\app",
-    "\\android\\app\\src",
-    "\\android\\app\\src\\main",
-    "\\android\\app\\src\\main\\java",
-    "\\android\\app\\src\\main\\java\\com",
-    "\\android\\app\\src\\main\\java\\com\\team",
-    "\\android\\app\\src\\main\\java\\com\\team\\smartsolar",
-    "\\android\\app\\src\\main\\res",
-    "\\android\\app\\src\\main\\res\\layout"
+    "\\web-service",
+    "\\web-service\\SolarGrid.Api"
   ],
+  "SelectedNode": "\\web-service\\SolarGrid.Api\\SolarGrid.Api.sln",
   "PreviewInSolutionExplorer": false
 }
