@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FAFAFA">
+    android:background="#0F172A">
 
     <!-- The Pinned Bottom Navigation Bar -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
@@ -11,11 +11,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:background="#FFFFFF"
+        android:background="#1E293B"
         app:menu="@menu/bottom_nav_menu"
         app:labelVisibilityMode="labeled"
-        app:itemIconTint="#0066CC"
-        app:itemTextColor="#0066CC" />
+        app:itemIconTint="#F59E0B"
+        app:itemTextColor="#94A3B8" />
 
     <!-- Main Content Area Above Nav -->
     <LinearLayout
@@ -30,13 +30,13 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="24dp"
-            android:background="#0066CC">
+            android:background="#0F172A">
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Prosumer Dashboard"
-                android:textSize="24sp"
+                android:text="Dashboard"
+                android:textSize="28sp"
                 android:textStyle="bold"
                 android:textColor="#FFFFFF" />
 
@@ -46,7 +46,7 @@
                 android:layout_height="wrap_content"
                 android:text="Welcome, Prosumer"
                 android:textSize="14sp"
-                android:textColor="#E0E0E0"
+                android:textColor="#94A3B8"
                 android:layout_marginTop="4dp"/>
         </LinearLayout>
 
@@ -66,7 +66,7 @@
                 android:layout_weight="1"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:background="@android:drawable/dialog_holo_light_frame"
+                android:background="#1E293B"
                 android:padding="12dp"
                 android:layout_marginEnd="4dp">
 
@@ -75,7 +75,7 @@
                     android:layout_height="wrap_content"
                     android:text="Pending"
                     android:textSize="12sp"
-                    android:textColor="#555555"/>
+                    android:textColor="#94A3B8"/>
 
                 <TextView
                     android:id="@+id/txtPendingCount"
@@ -84,7 +84,7 @@
                     android:text="0"
                     android:textSize="22sp"
                     android:textStyle="bold"
-                    android:textColor="#FF9800"/>
+                    android:textColor="#F59E0B"/>
             </LinearLayout>
 
             <!-- Approved Card -->
@@ -94,7 +94,7 @@
                 android:layout_weight="1"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:background="@android:drawable/dialog_holo_light_frame"
+                android:background="#1E293B"
                 android:padding="12dp"
                 android:layout_marginHorizontal="4dp">
 
@@ -103,7 +103,7 @@
                     android:layout_height="wrap_content"
                     android:text="Approved"
                     android:textSize="12sp"
-                    android:textColor="#555555"/>
+                    android:textColor="#94A3B8"/>
 
                 <TextView
                     android:id="@+id/txtApprovedCount"
@@ -112,7 +112,7 @@
                     android:text="0"
                     android:textSize="22sp"
                     android:textStyle="bold"
-                    android:textColor="#4CAF50"/>
+                    android:textColor="#10B981"/>
             </LinearLayout>
 
             <!-- Completed Card -->
@@ -122,7 +122,7 @@
                 android:layout_weight="1"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:background="@android:drawable/dialog_holo_light_frame"
+                android:background="#1E293B"
                 android:padding="12dp"
                 android:layout_marginStart="4dp">
 
@@ -131,7 +131,7 @@
                     android:layout_height="wrap_content"
                     android:text="Completed"
                     android:textSize="12sp"
-                    android:textColor="#555555"/>
+                    android:textColor="#94A3B8"/>
 
                 <TextView
                     android:id="@+id/txtCompletedCount"
@@ -140,7 +140,7 @@
                     android:text="0"
                     android:textSize="22sp"
                     android:textStyle="bold"
-                    android:textColor="#0066CC"/>
+                    android:textColor="#3B82F6"/>
             </LinearLayout>
 
         </LinearLayout>
@@ -155,14 +155,19 @@
             android:layout_marginHorizontal="16dp"
             android:layout_marginBottom="8dp"/>
 
-        <!-- Refresh Button hovering above nav -->
-        <Button
+        <!-- Refresh Button -->
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnViewStations"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
+            android:layout_height="55dp"
             android:layout_marginHorizontal="16dp"
             android:layout_marginBottom="16dp"
-            android:text="REFRESH STATIONS" />
+            android:text="REFRESH STATIONS"
+            android:textColor="#0F172A"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            app:backgroundTint="#F59E0B"
+            app:cornerRadius="8dp" />
 
     </LinearLayout>
 </RelativeLayout>

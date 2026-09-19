@@ -1,68 +1,107 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="32dp"
-    android:gravity="center_vertical"
-    android:background="#FAFAFA">
+    android:background="#0F172A"> <!-- Deep slate matching the web app -->
 
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Welcome Back"
-        android:textSize="32sp"
-        android:textStyle="bold"
-        android:textColor="#333333"
-        android:layout_marginBottom="8dp" />
+        android:layout_centerInParent="true"
+        android:orientation="vertical"
+        android:padding="32dp">
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Login to your Prosumer Account"
-        android:textSize="16sp"
-        android:textColor="#666666"
-        android:layout_marginBottom="32dp" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Welcome back"
+            android:textSize="36sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:layout_marginBottom="8dp" />
 
-    <EditText
-        android:id="@+id/inputLoginNic"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:hint="National Identity Card (NIC)"
-        android:inputType="text"
-        android:background="@android:drawable/edit_text"
-        android:paddingStart="12dp"
-        android:paddingEnd="12dp"
-        android:layout_marginBottom="16dp"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Login to your Prosumer Account"
+            android:textSize="16sp"
+            android:textColor="#94A3B8"
+            android:layout_marginBottom="40dp" />
 
-    <EditText
-        android:id="@+id/inputLoginPassword"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:hint="Password"
-        android:inputType="textPassword"
-        android:background="@android:drawable/edit_text"
-        android:paddingStart="12dp"
-        android:paddingEnd="12dp"
-        android:layout_marginBottom="32dp"/>
+        <!-- NIC Label & Input -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Username / NIC"
+            android:textColor="#E2E8F0"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp"/>
 
-    <Button
-        android:id="@+id/btnLogin"
-        android:layout_width="match_parent"
-        android:layout_height="55dp"
-        android:text="LOGIN"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="16dp"/>
+        <EditText
+            android:id="@+id/inputLoginNic"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:hint="Enter your NIC"
+            android:textColorHint="#94A3B8"
+            android:textColor="#0F172A"
+            android:inputType="text"
+            android:background="#FFFFFF"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:layout_marginBottom="24dp"/>
 
-    <TextView
-        android:id="@+id/txtGoToRegister"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="New user? Register here."
-        android:textAlignment="center"
-        android:textColor="#0066CC"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        android:padding="8dp"/>
-</LinearLayout>
+        <!-- Password Label & Input -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Password"
+            android:textColor="#E2E8F0"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp"/>
+
+        <EditText
+            android:id="@+id/inputLoginPassword"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:hint="Enter your password"
+            android:textColorHint="#94A3B8"
+            android:textColor="#0F172A"
+            android:inputType="textPassword"
+            android:background="#FFFFFF"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:layout_marginBottom="40dp"/>
+
+        <!-- The Amber Sign In Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnLogin"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:text="Sign in →"
+            android:textColor="#0F172A"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:backgroundTint="#F59E0B"
+            app:cornerRadius="12dp"
+            android:layout_marginBottom="24dp"/>
+
+        <!-- Register Link -->
+        <TextView
+            android:id="@+id/txtGoToRegister"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="New user? Register here."
+            android:textAlignment="center"
+            android:textColor="#F59E0B"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:padding="12dp"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"/>
+
+    </LinearLayout>
+</RelativeLayout>
