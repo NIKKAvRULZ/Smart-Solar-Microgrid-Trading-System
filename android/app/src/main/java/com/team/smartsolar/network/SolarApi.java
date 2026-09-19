@@ -44,6 +44,15 @@ public interface SolarApi {
     @PATCH("api/reservations/{id}/cancel")
     Call<Void> cancelReservation(@Path("id") String id);
 
+    // --- PROSUMERS ---
+    @GET("api/prosumers/{nic}")
+    Call<com.team.smartsolar.models.ProsumerProfile> getProfile(@Path("nic") String nic);
+
+    @PUT("api/prosumers/{nic}")
+    Call<Void> updateProfile(@Path("nic") String nic, @Body com.team.smartsolar.models.ProsumerProfile profile);
+
+    @PATCH("api/prosumers/{nic}/deactivate")
+    Call<Void> requestDeactivation(@Path("nic") String nic);
 
 
 

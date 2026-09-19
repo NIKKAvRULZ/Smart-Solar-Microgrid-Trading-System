@@ -25,21 +25,30 @@
                 android:textSize="32sp"
                 android:textStyle="bold"
                 android:textColor="#333333"
-                android:layout_marginBottom="32dp" />
+                android:layout_marginBottom="24dp" />
 
-            <EditText
-                android:id="@+id/editProfileNic"
+            <TextView
+                android:id="@+id/txtProfileNic"
                 android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:hint="NIC (Uneditable)"
-                android:enabled="false"
-                android:background="@android:drawable/edit_text"
-                android:paddingStart="12dp"
-                android:paddingEnd="12dp"
-                android:layout_marginBottom="16dp"/>
+                android:layout_height="wrap_content"
+                android:text="NIC: Loading..."
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#555555"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:id="@+id/txtProfileStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Account Status: Loading..."
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#555555"
+                android:layout_marginBottom="24dp" />
 
             <EditText
-                android:id="@+id/editProfileName"
+                android:id="@+id/inputProfileName"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:hint="Full Name"
@@ -50,11 +59,33 @@
                 android:layout_marginBottom="16dp"/>
 
             <EditText
-                android:id="@+id/editProfileEmail"
+                android:id="@+id/inputProfileEmail"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:hint="Email Address"
                 android:inputType="textEmailAddress"
+                android:background="@android:drawable/edit_text"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:layout_marginBottom="16dp"/>
+
+            <EditText
+                android:id="@+id/inputProfilePhone"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:hint="Phone Number"
+                android:inputType="phone"
+                android:background="@android:drawable/edit_text"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:layout_marginBottom="16dp"/>
+
+            <EditText
+                android:id="@+id/inputProfileAddress"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:hint="Address"
+                android:inputType="textPostalAddress"
                 android:background="@android:drawable/edit_text"
                 android:paddingStart="12dp"
                 android:paddingEnd="12dp"

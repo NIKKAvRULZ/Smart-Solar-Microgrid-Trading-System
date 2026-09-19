@@ -12,10 +12,12 @@ namespace SolarGrid.Api.Services;
 public class AppUserService
 {
     private readonly IAppUserRepository _userRepository;
+    private readonly IProsumerRepository _prosumerRepository;
 
-    public AppUserService(IAppUserRepository userRepository)
+    public AppUserService(IAppUserRepository userRepository, IProsumerRepository prosumerRepository)
     {
         _userRepository = userRepository;
+        _prosumerRepository = prosumerRepository;
     }
 
     public async Task<List<AppUser>> GetAllAsync() =>
@@ -29,15 +31,36 @@ public class AppUserService
 
         var user = new AppUser
         {
-            Username     = request.Username,
+            Username = request.Username,
             PasswordHash = HashPassword(request.Password),
-            FullName     = request.FullName,
-            Email        = request.Email,
-            Role         = request.Role,
-            IsActive     = true
+            FullName = request.FullName,
+            Email = request.Email,
+            Role = request.Role,
+            IsActive = true
         };
 
         await _userRepository.CreateAsync(user);
+
+        // Auto-sync: Create a matching profile in the Prosumers collection
+        if (string.Equals(request.Role, "Prosumer", StringComparison.OrdinalIgnoreCase))
+        {
+            var existingProsumer = await _prosumerRepository.GetByNicAsync(request.Username);
+            if (existingProsumer == null)
+            {
+                var prosumer = new Prosumer
+                {
+                    Nic = request.Username,
+                    FullName = request.FullName,
+                    Email = request.Email,
+                    Phone = "",
+                    Address = "",
+                    PasswordHash = user.PasswordHash,
+                    IsActive = true
+                };
+                await _prosumerRepository.CreateAsync(prosumer);
+            }
+        }
+
         return user;
     }
 
@@ -48,8 +71,8 @@ public class AppUserService
         if (user == null) return null;
 
         user.FullName = request.FullName;
-        user.Email    = request.Email;
-        user.Role     = request.Role;
+        user.Email = request.Email;
+        user.Role = request.Role;
         user.IsActive = request.IsActive;
 
         await _userRepository.UpdateAsync(id, user);
