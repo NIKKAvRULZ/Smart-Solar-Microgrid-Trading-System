@@ -46,6 +46,7 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingV
             } else if (booking.getStatus().equalsIgnoreCase("Pending")) {
                 // Open the Modify/Cancel screen
                 android.content.Intent intent = new android.content.Intent(v.getContext(), com.team.smartsolar.ModifyBookingActivity.class);
+                intent.putExtra("BOOKING_ID", booking.getId());
                 intent.putExtra("STATION", booking.getStationName());
                 intent.putExtra("DATE", booking.getDate());
                 intent.putExtra("TIME", booking.getTime());

@@ -27,6 +27,10 @@ public class Reservation
     [JsonPropertyName("durationMinutes")]
     public int DurationMinutes { get; set; }
 
+    // --- NEW ENERGY AMOUNT FIELD ---
+    [JsonPropertyName("energyAmount")]
+    public double EnergyAmount { get; set; }
+
     /// <summary>Pending | Approved | Completed | Cancelled</summary>
     [JsonPropertyName("status")]
     public string Status { get; set; } = "Pending";

@@ -38,12 +38,13 @@ public class ReservationService
 
         var reservation = new Reservation
         {
-            ProsumerNic       = request.ProsumerNic,
-            NodeId            = request.NodeId,
+            ProsumerNic = request.ProsumerNic,
+            NodeId = request.NodeId,
             ScheduledDateTime = request.ScheduledDateTime,
-            DurationMinutes   = request.DurationMinutes,
-            Status            = "Pending",
-            CreatedAt         = DateTime.UtcNow
+            DurationMinutes = request.DurationMinutes,
+            EnergyAmount = request.EnergyAmount, // <-- ADDED FIELD
+            Status = "Pending",
+            CreatedAt = DateTime.UtcNow
         };
 
         await _reservationRepository.CreateAsync(reservation);
@@ -68,8 +69,9 @@ public class ReservationService
         }
 
         reservation.ScheduledDateTime = request.ScheduledDateTime;
-        reservation.DurationMinutes   = request.DurationMinutes;
-        reservation.UpdatedAt         = DateTime.UtcNow;
+        reservation.DurationMinutes = request.DurationMinutes;
+        reservation.EnergyAmount = request.EnergyAmount; // <-- ADDED FIELD
+        reservation.UpdatedAt = DateTime.UtcNow;
 
         await _reservationRepository.UpdateAsync(id, reservation);
         return reservation;
@@ -86,7 +88,7 @@ public class ReservationService
         if (DateTime.UtcNow > reservation.ScheduledDateTime.AddHours(-12))
             throw new ArgumentException("Reservations can only be cancelled at least 12 hours before the scheduled time.");
 
-        reservation.Status    = "Cancelled";
+        reservation.Status = "Cancelled";
         reservation.UpdatedAt = DateTime.UtcNow;
 
         await _reservationRepository.UpdateAsync(id, reservation);
@@ -105,8 +107,8 @@ public class ReservationService
         if (reservation.Status != "Pending")
             throw new ArgumentException("Only Pending reservations can be approved.");
 
-        reservation.Status    = "Approved";
-        reservation.QrCode    = GenerateQrCode($"{reservation.ProsumerNic}-{reservation.NodeId}-{reservation.ScheduledDateTime:O}");
+        reservation.Status = "Approved";
+        reservation.QrCode = GenerateQrCode($"{reservation.ProsumerNic}-{reservation.NodeId}-{reservation.ScheduledDateTime:O}");
         reservation.UpdatedAt = DateTime.UtcNow;
 
         await _reservationRepository.UpdateAsync(id, reservation);
@@ -121,7 +123,7 @@ public class ReservationService
         if (reservation.Status != "Approved")
             throw new ArgumentException("Only Approved reservations can be completed.");
 
-        reservation.Status    = "Completed";
+        reservation.Status = "Completed";
         reservation.UpdatedAt = DateTime.UtcNow;
 
         await _reservationRepository.UpdateAsync(id, reservation);

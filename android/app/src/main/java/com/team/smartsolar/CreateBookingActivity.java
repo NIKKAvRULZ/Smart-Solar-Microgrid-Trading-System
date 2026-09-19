@@ -1,16 +1,28 @@
 package com.team.smartsolar;
 
-import android.app.DatePickerDialog;
-import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+import androidx.appcompat.app.AppCompatActivity;
 
-import java.util.Calendar;
+import com.team.smartsolar.database.DatabaseHelper;
+import com.team.smartsolar.models.CreateReservationRequest;
+import com.team.smartsolar.network.RetrofitClient;
+import com.team.smartsolar.network.SolarApi;
 
-public class CreateBookingActivity extends BaseActivity {
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
+public class CreateBookingActivity extends AppCompatActivity {
 
     private EditText inputStationId, inputBookingDate, inputStartTimeSlot, inputEndTimeSlot, inputEnergyAmount;
     private Button btnConfirmBooking;
@@ -28,34 +40,61 @@ public class CreateBookingActivity extends BaseActivity {
         btnConfirmBooking = findViewById(R.id.btnConfirmBooking);
 
         // Date Picker
-        inputBookingDate.setOnClickListener(v -> {
-            Calendar cal = Calendar.getInstance();
-            new DatePickerDialog(CreateBookingActivity.this, (view, year, month, dayOfMonth) -> {
-                // Formats the date as YYYY-MM-DD
-                inputBookingDate.setText(String.format("%04d-%02d-%02d", year, month + 1, dayOfMonth));
-            }, cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH)).show();
+        inputBookingDate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                java.util.Calendar calendar = java.util.Calendar.getInstance();
+                new android.app.DatePickerDialog(CreateBookingActivity.this,
+                        (view, year, month, dayOfMonth) -> {
+                            String selectedDate = String.format(java.util.Locale.getDefault(), "%04d-%02d-%02d", year, month + 1, dayOfMonth);
+                            inputBookingDate.setText(selectedDate);
+                        },
+                        calendar.get(java.util.Calendar.YEAR),
+                        calendar.get(java.util.Calendar.MONTH),
+                        calendar.get(java.util.Calendar.DAY_OF_MONTH)
+                ).show();
+            }
         });
 
         // Start Time Picker
-        inputStartTimeSlot.setOnClickListener(v -> {
-            Calendar cal = Calendar.getInstance();
-            new TimePickerDialog(CreateBookingActivity.this, (view, hourOfDay, minute) -> {
-                inputStartTimeSlot.setText(String.format("%02d:%02d", hourOfDay, minute));
-            }, cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), true).show();
+        inputStartTimeSlot.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                java.util.Calendar calendar = java.util.Calendar.getInstance();
+                new android.app.TimePickerDialog(CreateBookingActivity.this,
+                        (view, hourOfDay, minute) -> {
+                            String selectedTime = String.format(java.util.Locale.getDefault(), "%02d:%02d", hourOfDay, minute);
+                            inputStartTimeSlot.setText(selectedTime);
+                        },
+                        calendar.get(java.util.Calendar.HOUR_OF_DAY),
+                        calendar.get(java.util.Calendar.MINUTE),
+                        true // 24-hour format
+                ).show();
+            }
         });
 
         // End Time Picker
-        inputEndTimeSlot.setOnClickListener(v -> {
-            Calendar cal = Calendar.getInstance();
-            new TimePickerDialog(CreateBookingActivity.this, (view, hourOfDay, minute) -> {
-                inputEndTimeSlot.setText(String.format("%02d:%02d", hourOfDay, minute));
-            }, cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), true).show();
+        inputEndTimeSlot.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                java.util.Calendar calendar = java.util.Calendar.getInstance();
+                new android.app.TimePickerDialog(CreateBookingActivity.this,
+                        (view, hourOfDay, minute) -> {
+                            String selectedTime = String.format(java.util.Locale.getDefault(), "%02d:%02d", hourOfDay, minute);
+                            inputEndTimeSlot.setText(selectedTime);
+                        },
+                        calendar.get(java.util.Calendar.HOUR_OF_DAY),
+                        calendar.get(java.util.Calendar.MINUTE),
+                        true // 24-hour format
+                ).show();
+            }
         });
-
-        btnConfirmBooking.setOnClickListener(v -> handleBookingSubmission());
-
-        // --- Setup Bottom Navigation ---
-        setupBottomNavigation(R.id.nav_booking);
+        btnConfirmBooking.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                handleBookingSubmission();
+            }
+        });
     }
 
     private void handleBookingSubmission() {
@@ -65,26 +104,91 @@ public class CreateBookingActivity extends BaseActivity {
         String end = inputEndTimeSlot.getText().toString().trim();
         String amountStr = inputEnergyAmount.getText().toString().trim();
 
-        // 1. Basic Validation
         if (station.isEmpty() || date.isEmpty() || start.isEmpty() || end.isEmpty() || amountStr.isEmpty()) {
             Toast.makeText(this, "Please fill in all booking details", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // 2. Save to SQLite Cache
-        com.team.smartsolar.database.DatabaseHelper db = new com.team.smartsolar.database.DatabaseHelper(this);
-        db.saveMockBooking(station, date, start, end, amountStr);
+        // 1. Calculate duration and convert Local Time to UTC for the backend
+        int durationMinutes = 0;
+        String scheduledDateTime = "";
 
-        Toast.makeText(this, "Booking saved locally!", Toast.LENGTH_SHORT).show();
+        try {
+            SimpleDateFormat localFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
+            Date startDate = localFormat.parse(date + " " + start);
+            Date endDate = localFormat.parse(date + " " + end);
 
-        // 3. Navigate to Summary Screen and pass the data along
-        Intent intent = new Intent(CreateBookingActivity.this, BookingSummaryActivity.class);
-        intent.putExtra("STATION", station);
-        intent.putExtra("DATE", date);
-        intent.putExtra("TIME", start + " - " + end); // Combine start and end for the receipt
-        intent.putExtra("AMOUNT", amountStr);
-        startActivity(intent);
+            if (startDate != null && endDate != null) {
+                long diffInMillis = endDate.getTime() - startDate.getTime();
+                durationMinutes = (int) (diffInMillis / (1000 * 60));
 
-        finish(); // Close the booking form so the back button doesn't reload it
+                if (durationMinutes <= 0) {
+                    Toast.makeText(this, "End time must be after start time", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                // Convert the local Android time to standard UTC for C#
+                SimpleDateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault());
+                utcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+                scheduledDateTime = utcFormat.format(startDate);
+            }
+        } catch (Exception e) {
+            Toast.makeText(this, "Invalid time format", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // 2. Parse Energy Amount (kWh)
+        double energyAmountValue = 0.0;
+        try {
+            energyAmountValue = Double.parseDouble(amountStr);
+        } catch (NumberFormatException e) {
+            Toast.makeText(this, "Invalid energy amount", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // 3. Get the logged-in user's NIC
+        DatabaseHelper db = new DatabaseHelper(this);
+        String prosumerNic = db.getSessionNic();
+
+        if (prosumerNic == null) {
+            Toast.makeText(this, "Session expired. Please log in again.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // 4. Build the exact JSON payload the backend expects
+        CreateReservationRequest request = new CreateReservationRequest(
+                prosumerNic,
+                station,
+                scheduledDateTime,
+                durationMinutes,
+                energyAmountValue
+        );
+
+        // 5. Send to Server via Retrofit
+        SolarApi api = RetrofitClient.getClient().create(SolarApi.class);
+        api.createReservation(request).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(CreateBookingActivity.this, "Reservation Confirmed!", Toast.LENGTH_SHORT).show();
+
+                    // Route to Summary
+                    Intent intent = new Intent(CreateBookingActivity.this, BookingSummaryActivity.class);
+                    intent.putExtra("STATION", station);
+                    intent.putExtra("DATE", date);
+                    intent.putExtra("TIME", start + " - " + end);
+                    intent.putExtra("AMOUNT", amountStr);
+                    startActivity(intent);
+                    finish();
+                } else {
+                    Toast.makeText(CreateBookingActivity.this, "Failed to create booking: " + response.code(), Toast.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Toast.makeText(CreateBookingActivity.this, "Network Error: " + t.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
     }
 }
