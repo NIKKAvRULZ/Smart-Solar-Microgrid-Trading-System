@@ -1,38 +1,60 @@
+using MongoDB.Driver;
+using SolarGrid.Api.Configuration;
+using SolarGrid.Api.Repositories;
+using SolarGrid.Api.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-builder.Services.Configure<SolarGrid.Api.Configuration.SolarGridDatabaseSettings>(
+// ── Database ──────────────────────────────────────────────────────────────────
+builder.Services.Configure<SolarGridDatabaseSettings>(
     builder.Configuration.GetSection("SolarGridDatabase"));
 
-builder.Services.AddSingleton<MongoDB.Driver.IMongoClient>(s =>
+builder.Services.AddSingleton<IMongoClient>(s =>
 {
-    var settings = builder.Configuration.GetSection("SolarGridDatabase").Get<SolarGrid.Api.Configuration.SolarGridDatabaseSettings>();
-    return new MongoDB.Driver.MongoClient(settings!.ConnectionString);
+    var settings = builder.Configuration
+        .GetSection("SolarGridDatabase")
+        .Get<SolarGridDatabaseSettings>();
+    return new MongoClient(settings!.ConnectionString);
 });
 
-// Register Repositories and Services
-builder.Services.AddScoped<SolarGrid.Api.Repositories.IStationRepository, SolarGrid.Api.Repositories.StationRepository>();
-builder.Services.AddScoped<SolarGrid.Api.Services.StationService>();
-builder.Services.AddScoped<SolarGrid.Api.Repositories.IUserRepository, SolarGrid.Api.Repositories.UserRepository>();
-builder.Services.AddScoped<SolarGrid.Api.Services.UserService>();
-builder.Services.AddScoped<SolarGrid.Api.Repositories.IBookingRepository, SolarGrid.Api.Repositories.BookingRepository>();
-builder.Services.AddScoped<SolarGrid.Api.Services.BookingService>();
+// ── CORS — allow the Vite dev server ─────────────────────────────────────────
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("FrontendPolicy", policy =>
+    {
+        policy.WithOrigins("http://localhost:5173")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
 
+// ── Repositories ──────────────────────────────────────────────────────────────
+builder.Services.AddScoped<IAppUserRepository, AppUserRepository>();
+builder.Services.AddScoped<IProsumerRepository, ProsumerRepository>();
+builder.Services.AddScoped<INodeRepository, NodeRepository>();
+builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
+
+// ── Services ──────────────────────────────────────────────────────────────────
+builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<AppUserService>();
+builder.Services.AddScoped<ProsumerService>();
+builder.Services.AddScoped<NodeService>();
+builder.Services.AddScoped<ReservationService>();
+
+// ── MVC & Swagger ─────────────────────────────────────────────────────────────
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 app.UseSwagger();
 app.UseSwaggerUI();
 
-app.UseHttpsRedirection();
+// CORS must come before routing/auth middleware
+app.UseCors("FrontendPolicy");
 
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();

@@ -32,17 +32,30 @@ https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-aspnetcore-
 4. Right-click the solution in Solution Explorer and click **Restore NuGet Packages**.
 
 ### Configuring the Database Connection
-Open `appsettings.json` in the `SolarGrid.Api` project and ensure your MongoDB connection string is placed in the configuration:
+We strictly avoid hardcoding the MongoDB connection string inside `appsettings.json` to prevent leaking secrets into version control. Instead, the connection string is stored safely using **.NET User Secrets**.
 
-```json
-"SolarGridDatabase": {
-  "ConnectionString": "YOUR_MONGODB_CONNECTION_STRING",
-  "DatabaseName": "SolarGridDB",
-  "StationsCollectionName": "Stations",
-  "UsersCollectionName": "Users",
-  "BookingsCollectionName": "Bookings"
-}
-```
+1. Open `appsettings.json` and ensure the connection string is just a placeholder:
+   ```json
+   "SolarGridDatabase": {
+     "ConnectionString": "<YOUR_MONGODB_CONNECTION_STRING>",
+     "DatabaseName": "SolarGridDB",
+     "AppUsersCollectionName": "AppUsers",
+     "ProsumersCollectionName": "Prosumers",
+     "NodesCollectionName": "Nodes",
+     "ReservationsCollectionName": "Reservations"
+   }
+   ```
+2. Open a terminal in the `web-service/SolarGrid.Api` directory.
+3. Run the following command to set your real connection string locally:
+   ```powershell
+   dotnet user-secrets set "SolarGridDatabase:ConnectionString" "mongodb+srv://<username>:<password>@<cluster>.mongodb.net/?retryWrites=true&w=majority&authSource=admin"
+   ```
+   *(Note: Adding `&authSource=admin` is required if using an Atlas Admin user role.)*
+
+What this does:
+- It saves your real MongoDB connection string deep inside your OS user profile (`C:\Users\<User>\AppData\Roaming\Microsoft\UserSecrets\...`).
+- It does **not** live inside your project folder, keeping your code 100% safe to push to the remote repository.
+- When you run `dotnet run`, .NET automatically injects that secret over the dummy `<YOUR_MONGODB_CONNECTION_STRING>` placeholder in memory.
 
 ---
 
@@ -61,8 +74,8 @@ Running the application locally is the fastest way to test code changes.
    ```cmd
    dotnet run
    ```
-3. Look at the terminal output to find the local URL (e.g., `http://localhost:5000`).
-4. Open your browser and navigate to `http://localhost:5000/swagger`.
+3. Look at the terminal output to find the local URL (e.g., `http://localhost:8080`).
+4. Open your browser and navigate to `http://localhost:8080/swagger`.
 
 ---
 

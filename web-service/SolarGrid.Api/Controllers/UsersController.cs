@@ -2,50 +2,50 @@ using Microsoft.AspNetCore.Mvc;
 using SolarGrid.Api.Models;
 using SolarGrid.Api.Services;
 
-namespace SolarGrid.Api.Controllers
+namespace SolarGrid.Api.Controllers;
+
+[ApiController]
+[Route("api/users")]
+public class UsersController : ControllerBase
 {
-    [ApiController]
-    [Route("api/v1/[controller]")]
-    public class UsersController : ControllerBase
+    private readonly AppUserService _userService;
+
+    public UsersController(AppUserService userService)
     {
-        private readonly UserService _userService;
+        _userService = userService;
+    }
 
-        public UsersController(UserService userService)
-        {
-            _userService = userService;
-        }
+    [HttpGet]
+    public async Task<IActionResult> GetAll() =>
+        Ok(await _userService.GetAllAsync());
 
-        [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterRequest request)
-        {
-            var user = await _userService.RegisterAsync(request);
-            if (user == null)
-            {
-                return BadRequest(new { message = "NIC is already registered." });
-            }
-            return CreatedAtAction(nameof(Register), new { id = user.Id }, user);
-        }
+    [HttpPost]
+    public async Task<IActionResult> Create([FromBody] CreateUserRequest request)
+    {
+        var user = await _userService.CreateAsync(request);
+        if (user == null)
+            return BadRequest(new { message = "Username is already taken." });
 
-        [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginRequest request)
-        {
-            var response = await _userService.LoginAsync(request);
-            if (response == null)
-            {
-                return Unauthorized(new { message = "Invalid credentials or account deactivated." });
-            }
-            return Ok(response);
-        }
+        return CreatedAtAction(nameof(GetAll), user);
+    }
 
-        [HttpPut("{nic}/deactivate")]
-        public async Task<IActionResult> Deactivate(string nic)
-        {
-            var success = await _userService.DeactivateAsync(nic);
-            if (!success)
-            {
-                return NotFound(new { message = "User not found." });
-            }
-            return Ok(new { message = "Account successfully deactivated." });
-        }
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(string id, [FromBody] UpdateUserRequest request)
+    {
+        var user = await _userService.UpdateAsync(id, request);
+        if (user == null)
+            return NotFound(new { message = "User not found." });
+
+        return Ok(user);
+    }
+
+    [HttpPatch("{id}/deactivate")]
+    public async Task<IActionResult> Deactivate(string id)
+    {
+        var success = await _userService.DeactivateAsync(id);
+        if (!success)
+            return NotFound(new { message = "User not found." });
+
+        return Ok(new { message = "User deactivated successfully." });
     }
 }
