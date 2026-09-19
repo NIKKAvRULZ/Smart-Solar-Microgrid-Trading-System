@@ -1,17 +1,12 @@
 package com.team.smartsolar;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
-import androidx.annotation.NonNull;
 
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
-import com.team.smartsolar.models.Station;
+import com.team.smartsolar.database.DatabaseHelper;
+import com.team.smartsolar.models.ReservationResponse;
 import com.team.smartsolar.network.RetrofitClient;
 import com.team.smartsolar.network.SolarApi;
 
@@ -21,77 +16,73 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class DashboardActivity extends BaseActivity implements OnMapReadyCallback {
+public class DashboardActivity extends BaseActivity {
 
-    private GoogleMap mMap;
+    private TextView txtPendingCount, txtApprovedCount, txtCompletedCount, txtWelcome;
+    private String sessionNic;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_dashboard);
+        setContentView(R.layout.activity_dashboard); // Ensure this matches your dashboard XML
 
-        // Initialize Map
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.mapPlaceholder);
-        if (mapFragment != null) {
-            mapFragment.getMapAsync(this);
+        txtWelcome = findViewById(R.id.txtWelcome);
+        // Ensure you have these TextViews in your activity_dashboard.xml
+        txtPendingCount = findViewById(R.id.txtPendingCount);
+        txtApprovedCount = findViewById(R.id.txtApprovedCount);
+        txtCompletedCount = findViewById(R.id.txtCompletedCount);
+
+        DatabaseHelper db = new DatabaseHelper(this);
+        sessionNic = db.getSessionNic();
+
+        if (sessionNic == null) {
+            startActivity(new Intent(this, LoginActivity.class));
+            finish();
+            return;
         }
 
-        // --- Setup Refresh Stations Button ---
-        Button btnViewStations = findViewById(R.id.btnViewStations);
-        btnViewStations.setOnClickListener(v -> {
-            if (mMap != null) {
-                Toast.makeText(this, "Fetching live data...", Toast.LENGTH_SHORT).show();
-                fetchStationsFromApi();
-            } else {
-                Toast.makeText(this, "Map is still loading", Toast.LENGTH_SHORT).show();
-            }
-        });
+        txtWelcome.setText("Welcome, Prosumer " + sessionNic);
 
-        // --- Setup Bottom Navigation ---
         setupBottomNavigation(R.id.nav_dashboard);
     }
 
+    // onResume ensures metrics update automatically when backing out of a booking screen
     @Override
-    public void onMapReady(@NonNull GoogleMap googleMap) {
-        mMap = googleMap;
-
-        // Center map over Sri Lanka (Malabe region)
-        LatLng defaultLocation = new LatLng(6.9147, 79.9724);
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultLocation, 12f));
+    protected void onResume() {
+        super.onResume();
+        loadDashboardMetrics();
     }
 
-    // --- Retrofit Network Call ---
-    private void fetchStationsFromApi() {
+    private void loadDashboardMetrics() {
         SolarApi api = RetrofitClient.getClient().create(SolarApi.class);
-
-        // This line changes to match the updated SolarApi interface
-        Call<List<Station>> call = api.getNodes();
-
-        call.enqueue(new Callback<List<Station>>() {
+        api.getMyReservations(sessionNic).enqueue(new Callback<List<ReservationResponse>>() {
             @Override
-            public void onResponse(Call<List<Station>> call, Response<List<Station>> response) {
+            public void onResponse(Call<List<ReservationResponse>> call, Response<List<ReservationResponse>> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    mMap.clear();
+                    int pending = 0, approved = 0, completed = 0;
 
-                    List<Station> stations = response.body();
-                    for (Station station : stations) {
-                        LatLng position = new LatLng(station.getLatitude(), station.getLongitude());
-
-                        mMap.addMarker(new MarkerOptions()
-                                .position(position)
-                                .title(station.getName())
-                                .snippet("Capacity: " + station.getPowerCapacityKw() + " kW"));
+                    // Loop through the live reservations and increment the counters
+                    for (ReservationResponse res : response.body()) {
+                        if ("Pending".equalsIgnoreCase(res.getStatus())) {
+                            pending++;
+                        } else if ("Approved".equalsIgnoreCase(res.getStatus())) {
+                            approved++;
+                        } else if ("Completed".equalsIgnoreCase(res.getStatus())) {
+                            completed++;
+                        }
                     }
-                    Toast.makeText(DashboardActivity.this, "Loaded " + stations.size() + " stations", Toast.LENGTH_SHORT).show();
+
+                    txtPendingCount.setText(String.valueOf(pending));
+                    txtApprovedCount.setText(String.valueOf(approved));
+                    txtCompletedCount.setText(String.valueOf(completed));
                 } else {
-                    Toast.makeText(DashboardActivity.this, "Failed to load data. Is API running?", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(DashboardActivity.this, "Failed to load metrics", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
-            public void onFailure(Call<List<Station>> call, Throwable t) {
-                Toast.makeText(DashboardActivity.this, "Network Error: " + t.getMessage(), Toast.LENGTH_LONG).show();
+            public void onFailure(Call<List<ReservationResponse>> call, Throwable t) {
+                Toast.makeText(DashboardActivity.this, "Network Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
