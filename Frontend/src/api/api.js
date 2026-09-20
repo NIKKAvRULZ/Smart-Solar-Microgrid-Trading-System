@@ -40,3 +40,7 @@ export const updateReservation = (id, data) => axiosClient.put(`/reservations/${
 export const cancelReservation = (id) => axiosClient.patch(`/reservations/${id}/cancel`)
 export const approveReservation = (id) => axiosClient.patch(`/reservations/${id}/approve`)
 export const completeReservation = (id) => axiosClient.patch(`/reservations/${id}/complete`)
+
+// ---- Dashboard analytics ----
+export const getDashboard = (period = 'all') =>
+  axiosClient.get('/dashboard', { params: { period } })

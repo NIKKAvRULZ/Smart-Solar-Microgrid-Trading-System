@@ -40,6 +40,7 @@ builder.Services.AddScoped<AppUserService>();
 builder.Services.AddScoped<ProsumerService>();
 builder.Services.AddScoped<NodeService>();
 builder.Services.AddScoped<ReservationService>();
+builder.Services.AddScoped<DashboardService>();
 
 // ── MVC & Swagger ─────────────────────────────────────────────────────────────
 builder.Services.AddControllers();
