@@ -104,24 +104,38 @@ public class DashboardActivity extends BaseActivity implements OnMapReadyCallbac
 
     private void loadDashboardMetrics() {
         SolarApi api = RetrofitClient.getClient().create(SolarApi.class);
+        DatabaseHelper db = new DatabaseHelper(this);
 
-        // 1. Fetch stations first to map their names
+        // 1. Fetch stations to map their names for the widget
         api.getAllStations().enqueue(new Callback<List<NodeResponse>>() {
             @Override
             public void onResponse(Call<List<NodeResponse>> call, Response<List<NodeResponse>> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    for (NodeResponse node : response.body()) {
-                        stationMap.put(node.getId(), node.getName());
-                    }
+                    db.cacheStations(response.body()); // Keep cache fresh
+                    mapStationsToDictionary(response.body());
+                } else {
+                    mapStationsToDictionary(db.getCachedStations()); // Fallback
                 }
                 fetchReservationsAndUpdateDashboard(api);
             }
 
             @Override
             public void onFailure(Call<List<NodeResponse>> call, Throwable t) {
+                mapStationsToDictionary(db.getCachedStations()); // Fallback on error
                 fetchReservationsAndUpdateDashboard(api);
             }
         });
+    }
+
+    private void mapStationsToDictionary(List<NodeResponse> stations) {
+        stationMap.clear();
+        for (NodeResponse node : stations) {
+            String id = node.getId() != null ? node.getId() : node.getStationId();
+            String name = node.getName() != null ? node.getName() : node.getStationName();
+            if (id != null && name != null) {
+                stationMap.put(id, name);
+            }
+        }
     }
 
     private void fetchReservationsAndUpdateDashboard(SolarApi api) {

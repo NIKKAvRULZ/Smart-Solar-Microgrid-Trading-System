@@ -1,12 +1,13 @@
 package com.team.smartsolar;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.textfield.TextInputEditText;
 import com.team.smartsolar.database.DatabaseHelper;
 import com.team.smartsolar.models.ProsumerProfile;
 import com.team.smartsolar.network.RetrofitClient;
@@ -19,7 +20,7 @@ import retrofit2.Response;
 public class ProfileActivity extends BaseActivity {
 
     private TextView txtProfileNic, txtProfileStatus;
-    private EditText inputProfileName, inputProfileEmail, inputProfilePhone, inputProfileAddress;
+    private TextInputEditText inputProfileName, inputProfileEmail, inputProfilePhone, inputProfileAddress;
     private Button btnUpdateProfile, btnDeactivateAccount, btnLogout;
     private String sessionNic;
 
@@ -30,10 +31,12 @@ public class ProfileActivity extends BaseActivity {
 
         txtProfileNic = findViewById(R.id.txtProfileNic);
         txtProfileStatus = findViewById(R.id.txtProfileStatus);
+
         inputProfileName = findViewById(R.id.inputProfileName);
         inputProfileEmail = findViewById(R.id.inputProfileEmail);
-        inputProfilePhone = findViewById(R.id.inputProfilePhone); // Make sure this exists in XML
-        inputProfileAddress = findViewById(R.id.inputProfileAddress); // Make sure this exists in XML
+        inputProfilePhone = findViewById(R.id.inputProfilePhone);
+        inputProfileAddress = findViewById(R.id.inputProfileAddress);
+
         btnUpdateProfile = findViewById(R.id.btnUpdateProfile);
         btnDeactivateAccount = findViewById(R.id.btnDeactivateAccount);
         btnLogout = findViewById(R.id.btnLogout);
@@ -47,7 +50,7 @@ public class ProfileActivity extends BaseActivity {
             return;
         }
 
-        txtProfileNic.setText("NIC: " + sessionNic);
+        txtProfileNic.setText("NIC ID: " + sessionNic);
 
         loadLiveProfileData();
 
@@ -67,35 +70,62 @@ public class ProfileActivity extends BaseActivity {
 
     private void loadLiveProfileData() {
         SolarApi api = RetrofitClient.getClient().create(SolarApi.class);
+        DatabaseHelper db = new DatabaseHelper(this);
+
         api.getProfile(sessionNic).enqueue(new Callback<ProsumerProfile>() {
             @Override
             public void onResponse(Call<ProsumerProfile> call, Response<ProsumerProfile> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     ProsumerProfile profile = response.body();
-                    inputProfileName.setText(profile.getFullName());
-                    inputProfileEmail.setText(profile.getEmail());
-                    inputProfilePhone.setText(profile.getPhone());
-                    inputProfileAddress.setText(profile.getAddress());
-
-                    String statusText = profile.isActive() ? "Active" : "Deactivated";
-                    txtProfileStatus.setText("Account Status: " + statusText);
+                    db.cacheProfile(sessionNic, profile); // 1. Save fresh data to local SQLite
+                    populateProfileUI(profile);
                 } else {
-                    Toast.makeText(ProfileActivity.this, "Create a profile via Swagger first", Toast.LENGTH_LONG).show();
+                    loadOfflineProfile(db);
                 }
             }
 
             @Override
             public void onFailure(Call<ProsumerProfile> call, Throwable t) {
-                Toast.makeText(ProfileActivity.this, "Network Error", Toast.LENGTH_SHORT).show();
+                loadOfflineProfile(db); // 2. Trigger fallback on network error
             }
         });
     }
 
+    private void loadOfflineProfile(DatabaseHelper db) {
+        ProsumerProfile cachedProfile = db.getCachedProfile(sessionNic);
+        if (cachedProfile != null) {
+            Toast.makeText(this, "Offline Mode: Showing cached profile", Toast.LENGTH_SHORT).show();
+            populateProfileUI(cachedProfile);
+        } else {
+            Toast.makeText(this, "Network Error: No offline data available", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void populateProfileUI(ProsumerProfile profile) {
+        if (inputProfileName != null) inputProfileName.setText(profile.getFullName());
+        if (inputProfileEmail != null) inputProfileEmail.setText(profile.getEmail());
+        if (inputProfilePhone != null) inputProfilePhone.setText(profile.getPhone());
+        if (inputProfileAddress != null) inputProfileAddress.setText(profile.getAddress());
+        updateStatusBadge(profile.isActive());
+    }
+
+    private void updateStatusBadge(boolean isActive) {
+        if (isActive) {
+            txtProfileStatus.setText("Status: ACTIVE");
+            txtProfileStatus.setTextColor(Color.parseColor("#10B981")); // Green
+            txtProfileStatus.setBackgroundColor(Color.parseColor("#2010B981"));
+        } else {
+            txtProfileStatus.setText("Status: DEACTIVATED");
+            txtProfileStatus.setTextColor(Color.parseColor("#EF4444")); // Red
+            txtProfileStatus.setBackgroundColor(Color.parseColor("#20EF4444"));
+        }
+    }
+
     private void handleProfileUpdate() {
-        String name = inputProfileName.getText().toString().trim();
-        String email = inputProfileEmail.getText().toString().trim();
-        String phone = inputProfilePhone.getText().toString().trim();
-        String address = inputProfileAddress.getText().toString().trim();
+        String name = inputProfileName.getText() != null ? inputProfileName.getText().toString().trim() : "";
+        String email = inputProfileEmail.getText() != null ? inputProfileEmail.getText().toString().trim() : "";
+        String phone = inputProfilePhone.getText() != null ? inputProfilePhone.getText().toString().trim() : "";
+        String address = inputProfileAddress.getText() != null ? inputProfileAddress.getText().toString().trim() : "";
 
         if (name.isEmpty() || email.isEmpty() || phone.isEmpty() || address.isEmpty()) {
             Toast.makeText(this, "All fields are required", Toast.LENGTH_SHORT).show();
@@ -129,7 +159,7 @@ public class ProfileActivity extends BaseActivity {
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {
                     Toast.makeText(ProfileActivity.this, "Account deactivated", Toast.LENGTH_LONG).show();
-                    txtProfileStatus.setText("Account Status: Deactivated");
+                    updateStatusBadge(false);
                 } else {
                     Toast.makeText(ProfileActivity.this, "Failed to deactivate", Toast.LENGTH_SHORT).show();
                 }

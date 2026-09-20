@@ -184,6 +184,7 @@
                 app:backgroundTint="#F59E0B"
                 app:cornerRadius="12dp"
                 android:layout_marginBottom="16dp"/>
+
         </LinearLayout>
     </ScrollView>
 
@@ -195,7 +196,8 @@
         android:background="#1E293B"
         app:menu="@menu/bottom_nav_menu"
         app:labelVisibilityMode="labeled"
-        app:itemIconTint="#F59E0B"
-        app:itemTextColor="#94A3B8" />
+        app:itemIconTint="@color/bottom_nav_selector"
+        app:itemTextColor="@color/bottom_nav_selector"
+        app:itemRippleColor="#334155" />
 
 </RelativeLayout>

@@ -34,4 +34,7 @@ public class ProsumerProfile {
     public String getPhone() { return phone; }
     public String getAddress() { return address; }
     public boolean isActive() { return isActive; }
+    public void setActive(boolean active) {
+        this.isActive = active;
+    }
 }

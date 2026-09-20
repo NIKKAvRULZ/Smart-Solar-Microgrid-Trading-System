@@ -112,7 +112,6 @@ public class CreateBookingActivity extends BaseActivity {
                         String cleanName = station.getName() != null ? station.getName().trim() : "Unknown";
 
                         if (station.getAvailableBatterySlots() > 0 && station.getCapacityKWh() > 0) {
-                            // Show name, slots, and remaining energy
                             stationNames.add(cleanName + " (" + station.getAvailableBatterySlots() + " slots | " + station.getCapacityKWh() + " kWh)");
                         } else {
                             stationNames.add(cleanName + " (STATION FULL)");
@@ -122,6 +121,18 @@ public class CreateBookingActivity extends BaseActivity {
                     ArrayAdapter<String> adapter = new ArrayAdapter<>(CreateBookingActivity.this,
                             android.R.layout.simple_spinner_dropdown_item, stationNames);
                     spinnerStation.setAdapter(adapter);
+
+                    // NEW: Auto-select the station if the user came from the Grid Explorer Map
+                    String preselectedId = getIntent().getStringExtra("PRESELECTED_STATION_ID");
+                    if (preselectedId != null) {
+                        for (int i = 0; i < liveStations.size(); i++) {
+                            if (preselectedId.equals(liveStations.get(i).getStationId())) {
+                                spinnerStation.setSelection(i);
+                                break; // Stop looping once we find it
+                            }
+                        }
+                    }
+
                 } else {
                     Toast.makeText(CreateBookingActivity.this, "Failed to load stations", Toast.LENGTH_SHORT).show();
                 }
