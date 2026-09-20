@@ -2,7 +2,6 @@ package com.team.smartsolar;
 
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -21,7 +20,6 @@ public class ViewQrActivity extends AppCompatActivity {
 
         ImageView imgQrCode = findViewById(R.id.imgQrCode);
         TextView txtQrDetails = findViewById(R.id.txtQrDetails);
-        Button btnCloseQr = findViewById(R.id.btnCloseQr);
 
         // 1. Retrieve the booking data passed from the list
         String station = getIntent().getStringExtra("STATION");
@@ -43,6 +41,7 @@ public class ViewQrActivity extends AppCompatActivity {
             Toast.makeText(this, "Failed to generate QR: " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
 
-        btnCloseQr.setOnClickListener(v -> finish());
+        // New Back Navigation
+        findViewById(R.id.btnBack).setOnClickListener(v -> finish());
     }
 }

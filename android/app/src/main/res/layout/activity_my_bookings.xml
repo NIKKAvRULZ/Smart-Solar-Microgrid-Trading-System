@@ -3,62 +3,83 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FAFAFA">
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@+id/bottomNavigation"
-        android:orientation="vertical"
-        android:padding="24dp">
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="My Bookings"
-            android:textSize="32sp"
-            android:textStyle="bold"
-            android:textColor="#333333"
-            android:layout_marginBottom="24dp" />
-
-        <Button
-            android:id="@+id/btnGoToCreateBooking"
-            android:layout_width="match_parent"
-            android:layout_height="55dp"
-            android:text="+ CREATE NEW BOOKING"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:backgroundTint="#4CAF50"
-            android:layout_marginBottom="24dp"/>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Current &amp; Pending"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="#333333"
-            android:layout_marginBottom="16dp" />
-
-        <!-- Placeholder for your future RecyclerView (Booking History) -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerViewBookings"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:clipToPadding="false"
-            android:paddingBottom="80dp"/>
-    </LinearLayout>
+    android:background="#0F172A">
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:background="#FFFFFF"
+        android:background="#1E293B"
         app:menu="@menu/bottom_nav_menu"
         app:labelVisibilityMode="labeled"
-        app:itemIconTint="#0066CC"
-        app:itemTextColor="#0066CC" />
+        app:itemIconTint="@color/bottom_nav_selector"
+        app:itemTextColor="@color/bottom_nav_selector"
+        app:itemRippleColor="#334155" />
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/bottomNavigation"
+        android:orientation="vertical">
+
+        <!-- Header & Filter Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="24dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="My Bookings"
+                android:textSize="28sp"
+                android:textStyle="bold"
+                android:textColor="#FFFFFF" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="16dp"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Filter by Status: "
+                    android:textColor="#94A3B8"
+                    android:textStyle="bold"/>
+
+                <Spinner
+                    android:id="@+id/spinnerFilterStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="45dp"
+                    android:background="#FFFFFF"
+                    android:layout_marginStart="12dp"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnGoToCreateBooking"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginHorizontal="24dp"
+            android:layout_marginBottom="16dp"
+            android:text="+ CREATE NEW BOOKING"
+            android:textColor="#0F172A"
+            android:textStyle="bold"
+            app:backgroundTint="#F59E0B"
+            app:cornerRadius="12dp"/>
+
+        <!-- The List -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerViewBookings"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingBottom="16dp"/>
+
+    </LinearLayout>
 </RelativeLayout>

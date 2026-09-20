@@ -19,6 +19,16 @@ public class ProsumersController : ControllerBase
     public async Task<IActionResult> GetAll() =>
         Ok(await _prosumerService.GetAllAsync());
 
+    [HttpGet("{nic}")]
+    public async Task<IActionResult> GetByNic(string nic)
+    {
+        var prosumer = await _prosumerService.GetByNicAsync(nic);
+        if (prosumer == null)
+            return NotFound(new { message = "Prosumer not found." });
+
+        return Ok(prosumer);
+    }
+
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateProsumerRequest request)
     {

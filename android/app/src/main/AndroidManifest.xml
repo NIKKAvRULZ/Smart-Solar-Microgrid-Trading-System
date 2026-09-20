@@ -14,6 +14,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SmartSolar"
         android:usesCleartextTraffic="true">
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyB5Qa2DfyDoqGyYlfghJDlmZyNNNOrJl9E" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -36,11 +40,6 @@
             android:name=".DashboardActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
-
-        <meta-data
-            android:name="com.google.android.geo.API_KEY"
-            android:value="YOUR_API_KEY_HERE" />
-
         <activity
             android:name=".ProfileActivity"
             android:exported="false"
@@ -64,6 +63,11 @@
         <activity
             android:name=".ModifyBookingActivity"
             android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".StationMapActivity"
+            android:exported="false"
+            android:theme="@style/Theme.SmartSolar"
             android:windowSoftInputMode="adjustResize" />
     </application>
 

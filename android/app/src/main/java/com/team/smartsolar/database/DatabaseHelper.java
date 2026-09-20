@@ -1,21 +1,27 @@
 package com.team.smartsolar.database;
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.content.ContentValues;
-import android.database.Cursor;
+
+import com.team.smartsolar.models.NodeResponse;
+import com.team.smartsolar.models.ProsumerProfile;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "SmartSolarLocal.db";
-    // Bumped to version 4 to trigger onUpgrade and drop the mock booking table
-    private static final int DATABASE_VERSION = 4;
+    // Incremented to 3 to force Android to safely rebuild the tables with the new token columns
+    private static final int DATABASE_VERSION = 5;
 
-    // Table Names
-    public static final String TABLE_SESSION = "Session";
-    public static final String TABLE_USER_CACHE = "UserProfileCache";
-    public static final String TABLE_STATION_CACHE = "StationCache";
+    // Tables
+    private static final String TABLE_SESSION = "Session";
+    private static final String TABLE_PROFILE = "UserProfileCache";
+    private static final String TABLE_STATION = "StationCache";
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -23,83 +29,67 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String createSessionTable = "CREATE TABLE " + TABLE_SESSION + " (" +
-                "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                "nic TEXT, " +
+        // 1. Session Table (Tracks logged-in user, role, and JWT token)
+        db.execSQL("CREATE TABLE " + TABLE_SESSION + " (" +
+                "nic TEXT PRIMARY KEY, " +
                 "role TEXT, " +
-                "token TEXT, " +
-                "expiresAt INTEGER)";
+                "token TEXT)");
 
-        String createUserCacheTable = "CREATE TABLE " + TABLE_USER_CACHE + " (" +
+        // 2. Profile Cache Table (Stores user details for offline viewing)
+        db.execSQL("CREATE TABLE " + TABLE_PROFILE + " (" +
                 "nic TEXT PRIMARY KEY, " +
                 "name TEXT, " +
                 "email TEXT, " +
-                "role TEXT, " +
-                "status TEXT, " +
-                "lastSyncedAt INTEGER)";
+                "phone TEXT, " +
+                "address TEXT, " +
+                "isActive INTEGER, " +
+                "lastSyncedAt INTEGER)");
 
-        String createStationCacheTable = "CREATE TABLE " + TABLE_STATION_CACHE + " (" +
+        // 3. Station Cache Table (Stores grid nodes for the map and booking dropdown)
+        db.execSQL("CREATE TABLE " + TABLE_STATION + " (" +
                 "stationId TEXT PRIMARY KEY, " +
                 "name TEXT, " +
                 "latitude REAL, " +
                 "longitude REAL, " +
                 "capacity REAL, " +
                 "availableSlots INTEGER, " +
-                "status TEXT, " +
-                "lastSyncedAt INTEGER)";
-
-        db.execSQL(createSessionTable);
-        db.execSQL(createUserCacheTable);
-        db.execSQL(createStationCacheTable);
+                "lastSyncedAt INTEGER)");
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_SESSION);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_USER_CACHE);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_STATION_CACHE);
-        db.execSQL("DROP TABLE IF EXISTS mock_bookings"); // Cleans up the old mock table
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PROFILE);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_STATION);
         onCreate(db);
     }
 
-    public boolean saveSession(String nic, String role, String token) {
+    // ==========================================
+    // SESSION MANAGEMENT
+    // ==========================================
+
+    public void saveSession(String nic, String role, String token) {
         SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("DELETE FROM " + TABLE_SESSION); // Keep only one active session
+
         ContentValues values = new ContentValues();
         values.put("nic", nic);
         values.put("role", role);
         values.put("token", token);
-
-        db.execSQL("DELETE FROM " + TABLE_SESSION);
-        long result = db.insert(TABLE_SESSION, null, values);
-        return result != -1;
+        db.insert(TABLE_SESSION, null, values);
+        db.close();
     }
 
-    public boolean saveUserProfile(String nic, String name, String email, String role, String status) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put("nic", nic);
-        values.put("name", name);
-        values.put("email", email);
-        values.put("role", role);
-        values.put("status", status);
-
-        long result = db.insertWithOnConflict(TABLE_USER_CACHE, null, values, SQLiteDatabase.CONFLICT_REPLACE);
-        return result != -1;
-    }
-
-    public boolean saveStation(String stationId, String name, double latitude, double longitude, double capacity, int availableSlots, String status) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put("stationId", stationId);
-        values.put("name", name);
-        values.put("latitude", latitude);
-        values.put("longitude", longitude);
-        values.put("capacity", capacity);
-        values.put("availableSlots", availableSlots);
-        values.put("status", status);
-
-        long result = db.insertWithOnConflict(TABLE_STATION_CACHE, null, values, SQLiteDatabase.CONFLICT_REPLACE);
-        return result != -1;
+    public String getSessionNic() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT nic FROM " + TABLE_SESSION + " LIMIT 1", null);
+        String nic = null;
+        if (cursor.moveToFirst()) {
+            nic = cursor.getString(0);
+        }
+        cursor.close();
+        db.close();
+        return nic;
     }
 
     public String getSessionToken() {
@@ -110,6 +100,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             token = cursor.getString(0);
         }
         cursor.close();
+        db.close();
         return token;
     }
 
@@ -121,28 +112,107 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             role = cursor.getString(0);
         }
         cursor.close();
+        db.close();
         return role;
-    }
-
-    public Cursor getAllCachedStations() {
-        SQLiteDatabase db = this.getReadableDatabase();
-        return db.rawQuery("SELECT * FROM " + TABLE_STATION_CACHE, null);
     }
 
     public void logoutUser() {
         SQLiteDatabase db = this.getWritableDatabase();
         db.execSQL("DELETE FROM " + TABLE_SESSION);
-        db.execSQL("DELETE FROM " + TABLE_USER_CACHE);
+        db.execSQL("DELETE FROM " + TABLE_PROFILE); // Clear sensitive profile cache on logout
+        db.close();
     }
 
-    public String getSessionNic() {
+    // ==========================================
+    // PROFILE CACHE
+    // ==========================================
+
+    public void cacheProfile(String nic, ProsumerProfile profile) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("nic", nic);
+        values.put("name", profile.getFullName());
+        values.put("email", profile.getEmail());
+        values.put("phone", profile.getPhone());
+        values.put("address", profile.getAddress());
+        values.put("isActive", profile.isActive() ? 1 : 0);
+        values.put("lastSyncedAt", System.currentTimeMillis());
+
+        // Insert or replace ensures we don't get primary key crashes on updates
+        db.insertWithOnConflict(TABLE_PROFILE, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+        db.close();
+    }
+
+    public ProsumerProfile getCachedProfile(String nic) {
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT nic FROM " + TABLE_SESSION + " LIMIT 1", null);
-        String nic = null;
+        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_PROFILE + " WHERE nic = ?", new String[]{nic});
+
+        ProsumerProfile profile = null;
         if (cursor.moveToFirst()) {
-            nic = cursor.getString(0);
+            String name = cursor.getString(cursor.getColumnIndexOrThrow("name"));
+            String email = cursor.getString(cursor.getColumnIndexOrThrow("email"));
+            String phone = cursor.getString(cursor.getColumnIndexOrThrow("phone"));
+            String address = cursor.getString(cursor.getColumnIndexOrThrow("address"));
+            boolean isActive = cursor.getInt(cursor.getColumnIndexOrThrow("isActive")) == 1;
+
+            profile = new ProsumerProfile(name, email, phone, address);
+            profile.setActive(isActive);
         }
         cursor.close();
-        return nic;
+        db.close();
+        return profile;
+    }
+
+    // ==========================================
+    // STATION CACHE
+    // ==========================================
+
+    public void cacheStations(List<NodeResponse> stations) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.beginTransaction();
+        try {
+            // Clear old cache to remove deleted stations
+            db.execSQL("DELETE FROM " + TABLE_STATION);
+
+            for (NodeResponse station : stations) {
+                ContentValues values = new ContentValues();
+                values.put("stationId", station.getId() != null ? station.getId() : station.getStationId());
+                values.put("name", station.getName() != null ? station.getName() : station.getStationName());
+                values.put("latitude", station.getLatitude());
+                values.put("longitude", station.getLongitude());
+                values.put("capacity", station.getCapacityKWh());
+                values.put("availableSlots", station.getAvailableBatterySlots());
+                values.put("lastSyncedAt", System.currentTimeMillis());
+
+                db.insert(TABLE_STATION, null, values);
+            }
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+            db.close();
+        }
+    }
+
+    public List<NodeResponse> getCachedStations() {
+        List<NodeResponse> stationList = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_STATION, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                NodeResponse station = new NodeResponse();
+                station.setStationId(cursor.getString(cursor.getColumnIndexOrThrow("stationId")));
+                station.setStationName(cursor.getString(cursor.getColumnIndexOrThrow("name")));
+                station.setLatitude(cursor.getDouble(cursor.getColumnIndexOrThrow("latitude")));
+                station.setLongitude(cursor.getDouble(cursor.getColumnIndexOrThrow("longitude")));
+                station.setCapacityKWh(cursor.getDouble(cursor.getColumnIndexOrThrow("capacity")));
+                station.setAvailableBatterySlots(cursor.getInt(cursor.getColumnIndexOrThrow("availableSlots")));
+
+                stationList.add(station);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        db.close();
+        return stationList;
     }
 }

@@ -12,17 +12,29 @@ public class ProsumerProfile {
     @SerializedName("email")
     private String email;
 
-    @SerializedName("status")
-    private String status;
+    @SerializedName("phone")
+    private String phone;
 
-    // Constructor used for sending updates (NIC and Status are read-only on the server)
-    public ProsumerProfile(String fullName, String email) {
+    @SerializedName("address")
+    private String address;
+
+    @SerializedName("isActive")
+    private boolean isActive;
+
+    public ProsumerProfile(String fullName, String email, String phone, String address) {
         this.fullName = fullName;
         this.email = email;
+        this.phone = phone;
+        this.address = address;
     }
 
     public String getNic() { return nic; }
     public String getFullName() { return fullName; }
     public String getEmail() { return email; }
-    public String getStatus() { return status; }
+    public String getPhone() { return phone; }
+    public String getAddress() { return address; }
+    public boolean isActive() { return isActive; }
+    public void setActive(boolean active) {
+        this.isActive = active;
+    }
 }

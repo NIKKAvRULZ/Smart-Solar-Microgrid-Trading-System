@@ -77,4 +77,9 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingV
             txtItemStatus = itemView.findViewById(R.id.txtItemStatus);
         }
     }
+    // Method to update the list when a search filter is applied
+    public void filterList(List<Booking> filteredList) {
+        this.bookingList = filteredList;
+        notifyDataSetChanged();
+    }
 }

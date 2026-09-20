@@ -20,6 +20,8 @@ public class ProsumerService
 
     public async Task<List<Prosumer>> GetAllAsync() =>
         await _prosumerRepository.GetAllAsync();
+    public async Task<Prosumer?> GetByNicAsync(string nic) =>
+        await _prosumerRepository.GetByNicAsync(nic);
 
     /// <summary>Returns null if a prosumer with that NIC already exists.</summary>
     public async Task<Prosumer?> CreateAsync(CreateProsumerRequest request)

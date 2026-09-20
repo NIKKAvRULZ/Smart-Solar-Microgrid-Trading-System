@@ -3,20 +3,34 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FAFAFA">
+    android:background="#0F172A">
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/bottomNavigation"
+        android:layout_above="@+id/nav_booking"
         android:fillViewport="true">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="32dp"
-            android:gravity="center_vertical">
+            android:padding="32dp">
+
+            <TextView
+                android:id="@+id/btnBack"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="← Back"
+                android:textColor="#F59E0B"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="16dp"
+                android:paddingVertical="8dp"
+                android:paddingEnd="16dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"/>
 
             <TextView
                 android:layout_width="match_parent"
@@ -24,89 +38,147 @@
                 android:text="Modify Booking"
                 android:textSize="32sp"
                 android:textStyle="bold"
-                android:textColor="#333333"
+                android:textColor="#FFFFFF"
                 android:layout_marginBottom="8dp" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Changes are blocked within 12 hours of the start time."
+                android:text="Update time or energy. Station cannot be changed."
                 android:textSize="14sp"
-                android:textColor="#D32F2F"
-                android:layout_marginBottom="32dp" />
+                android:textColor="#94A3B8"
+                android:layout_marginBottom="40dp" />
 
-            <!-- Station ID (Locked, users shouldn't change the station itself) -->
+            <!-- Station (Read-Only) -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Station"
+                android:textColor="#E2E8F0"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp"/>
             <EditText
                 android:id="@+id/editStationId"
                 android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:enabled="false"
-                android:background="@android:drawable/edit_text"
-                android:paddingStart="12dp"
-                android:layout_marginBottom="16dp"/>
+                android:layout_height="55dp"
+                android:textColor="#94A3B8"
+                android:focusable="false"
+                android:clickable="false"
+                android:background="#1E293B"
+                android:paddingStart="16dp"
+                android:layout_marginBottom="24dp"/>
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Reservation Date"
+                android:textColor="#E2E8F0"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp"/>
             <EditText
                 android:id="@+id/editBookingDate"
                 android:layout_width="match_parent"
-                android:layout_height="50dp"
+                android:layout_height="55dp"
+                android:textColor="#0F172A"
                 android:focusable="false"
-                android:background="@android:drawable/edit_text"
-                android:paddingStart="12dp"
-                android:layout_marginBottom="16dp"/>
+                android:background="#FFFFFF"
+                android:paddingStart="16dp"
+                android:layout_marginBottom="24dp"/>
 
+            <!-- Side-by-side Time Slots -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginBottom="16dp">
+                android:layout_marginBottom="24dp">
 
-                <EditText
-                    android:id="@+id/editStartTime"
+                <LinearLayout
                     android:layout_width="0dp"
-                    android:layout_height="50dp"
+                    android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:focusable="false"
-                    android:background="@android:drawable/edit_text"
-                    android:paddingStart="12dp"
-                    android:layout_marginEnd="8dp"/>
+                    android:orientation="vertical"
+                    android:layout_marginEnd="8dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Start Time"
+                        android:textColor="#E2E8F0"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="8dp"/>
+                    <EditText
+                        android:id="@+id/editStartTime"
+                        android:layout_width="match_parent"
+                        android:layout_height="55dp"
+                        android:textColor="#0F172A"
+                        android:focusable="false"
+                        android:background="#FFFFFF"
+                        android:paddingStart="16dp" />
+                </LinearLayout>
 
-                <EditText
-                    android:id="@+id/editEndTime"
+                <LinearLayout
                     android:layout_width="0dp"
-                    android:layout_height="50dp"
+                    android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:focusable="false"
-                    android:background="@android:drawable/edit_text"
-                    android:paddingStart="12dp" />
+                    android:orientation="vertical"
+                    android:layout_marginStart="8dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="End Time"
+                        android:textColor="#E2E8F0"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="8dp"/>
+                    <EditText
+                        android:id="@+id/editEndTime"
+                        android:layout_width="match_parent"
+                        android:layout_height="55dp"
+                        android:textColor="#0F172A"
+                        android:focusable="false"
+                        android:background="#FFFFFF"
+                        android:paddingStart="16dp" />
+                </LinearLayout>
             </LinearLayout>
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Energy Amount (kWh)"
+                android:textColor="#E2E8F0"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp"/>
             <EditText
                 android:id="@+id/editEnergyAmount"
                 android:layout_width="match_parent"
-                android:layout_height="50dp"
+                android:layout_height="55dp"
+                android:textColor="#0F172A"
                 android:inputType="numberDecimal"
-                android:background="@android:drawable/edit_text"
-                android:paddingStart="12dp"
-                android:layout_marginBottom="32dp"/>
+                android:background="#FFFFFF"
+                android:paddingStart="16dp"
+                android:layout_marginBottom="40dp"/>
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnUpdateBooking"
                 android:layout_width="match_parent"
-                android:layout_height="55dp"
-                android:text="UPDATE BOOKING"
-                android:textSize="16sp"
+                android:layout_height="60dp"
+                android:text="SAVE CHANGES"
+                android:textColor="#0F172A"
                 android:textStyle="bold"
-                android:backgroundTint="#0066CC"
+                app:backgroundTint="#F59E0B"
+                app:cornerRadius="12dp"
                 android:layout_marginBottom="16dp"/>
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnCancelBooking"
                 android:layout_width="match_parent"
-                android:layout_height="55dp"
+                android:layout_height="60dp"
                 android:text="CANCEL BOOKING"
-                android:textSize="16sp"
+                android:textColor="#FFFFFF"
                 android:textStyle="bold"
-                android:backgroundTint="#D32F2F" />
+                app:backgroundTint="#EF4444"
+                app:cornerRadius="12dp"/>
         </LinearLayout>
     </ScrollView>
 
@@ -115,10 +187,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:background="#FFFFFF"
+        android:background="#1E293B"
         app:menu="@menu/bottom_nav_menu"
         app:labelVisibilityMode="labeled"
-        app:itemIconTint="#0066CC"
-        app:itemTextColor="#0066CC" />
+        app:itemIconTint="@color/bottom_nav_selector"
+        app:itemTextColor="@color/bottom_nav_selector"
+        app:itemRippleColor="#334155" />
 
 </RelativeLayout>

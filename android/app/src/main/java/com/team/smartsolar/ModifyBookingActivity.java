@@ -33,6 +33,7 @@ public class ModifyBookingActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_modify_booking);
 
+        findViewById(R.id.btnBack).setOnClickListener(v -> finish());
         editStationId = findViewById(R.id.editStationId);
         editBookingDate = findViewById(R.id.editBookingDate);
         editStartTime = findViewById(R.id.editStartTime);

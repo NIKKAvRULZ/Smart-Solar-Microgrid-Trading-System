@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#0F172A">
+
+    <!-- Full Screen Map -->
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/fullMap"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+    <!-- Top Navigation Bar -->
+    <LinearLayout
+        android:id="@+id/topHeader"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="48dp"
+        android:paddingBottom="16dp"
+        android:paddingHorizontal="16dp"
+        android:background="#E60F172A"
+        android:gravity="center_vertical"
+        android:layout_alignParentTop="true"
+        android:elevation="6dp">
+
+        <TextView
+            android:id="@+id/btnBackFromMap"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="← Back"
+            android:textColor="#F59E0B"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:paddingVertical="8dp"
+            android:paddingEnd="16dp"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Grid Explorer"
+            android:textColor="#FFFFFF"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_marginStart="8dp"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnZoomToStations"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:text="VIEW ALL"
+            android:textColor="#0F172A"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            app:backgroundTint="#F59E0B"
+            app:cornerRadius="20dp"/>
+    </LinearLayout>
+
+    <!-- Horizontal Station List Drawer (Now anchored to the bottom) -->
+    <LinearLayout
+        android:id="@+id/layoutStationsDrawer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="vertical"
+        android:paddingBottom="32dp"
+        android:background="#00000000">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="AVAILABLE GRID STATIONS"
+            android:textColor="#0F172A"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            android:layout_marginStart="16dp"
+            android:layout_marginBottom="8dp"
+            android:background="#F59E0B"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="4dp"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerStations"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:clipToPadding="false"
+            android:paddingStart="16dp"
+            android:paddingEnd="4dp"/>
+    </LinearLayout>
+
+    <!-- Selected Station Bottom Sheet Card -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardStationDetails"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="16dp"
+        android:visibility="gone"
+        app:cardBackgroundColor="#1E293B"
+        app:cardCornerRadius="24dp"
+        app:cardElevation="10dp"
+        app:strokeWidth="1dp"
+        app:strokeColor="#334155">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <TextView
+                android:id="@+id/txtSheetStationName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Station Name"
+                android:textColor="#FFFFFF"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="14dp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="18dp">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Available Slots"
+                        android:textColor="#94A3B8"
+                        android:textSize="12sp"/>
+                    <TextView
+                        android:id="@+id/txtSheetSlots"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        android:textColor="#10B981"
+                        android:textStyle="bold"
+                        android:textSize="18sp"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Remaining Energy"
+                        android:textColor="#94A3B8"
+                        android:textSize="12sp"/>
+                    <TextView
+                        android:id="@+id/txtSheetEnergy"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0 kWh"
+                        android:textColor="#F59E0B"
+                        android:textStyle="bold"
+                        android:textSize="18sp"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSheetBook"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:text="BOOK THIS STATION"
+                android:textColor="#0F172A"
+                android:textStyle="bold"
+                app:backgroundTint="#F59E0B"
+                app:cornerRadius="12dp"/>
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+</RelativeLayout>
