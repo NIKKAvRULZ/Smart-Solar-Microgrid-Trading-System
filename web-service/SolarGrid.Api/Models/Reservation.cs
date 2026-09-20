@@ -8,6 +8,7 @@ namespace SolarGrid.Api.Models;
 /// An energy slot reservation made by a prosumer at a microgrid node.
 /// Status lifecycle: Pending → Approved (QR issued) → Completed | Cancelled.
 /// </summary>
+[BsonIgnoreExtraElements]
 public class Reservation
 {
     [BsonId]
