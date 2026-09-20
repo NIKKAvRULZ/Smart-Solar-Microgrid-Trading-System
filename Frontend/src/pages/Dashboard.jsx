@@ -1,48 +1,57 @@
 import React from 'react'
 import {
-  IconUser,
   IconNode,
   IconBattery,
-  IconCalendar,
   IconChevronDown,
+  IconZap,
+  IconCheckCircle,
+  IconArrowRight,
 } from '../components/ui/Icons'
 
 const KPIS = [
   {
-    tone: 'green',
-    icon: <IconUser size={20} />,
-    label: 'Active prosumers',
-    display: '1',
-    sub: 'of 1 total',
-    spark: '#13A085',
-    points: '1,19 10,14 19,16 28,8 39,5',
-  },
-  {
     tone: 'blue',
     icon: <IconNode size={20} />,
-    label: 'Active grid nodes',
-    display: '1',
-    sub: 'of 1 total',
-    spark: '#3B82F6',
-    points: '1,20 9,17 17,18 26,10 39,3',
+    label: 'Total Nodes',
+    display: '5',
+    sub: 'Active monitoring hubs',
+    kind: 'network',
+    footerTone: 'success',
+    footerLabel: 'Live',
+    fill: 100,
   },
   {
     tone: 'amber',
+    icon: <IconZap size={20} />,
+    label: 'Total Capacity',
+    display: '43,620 kWh',
+    sub: 'Across all nodes',
+    kind: 'power',
+    footerTone: 'neutral',
+    footerLabel: 'Peak load',
+    fill: 72,
+  },
+  {
+    tone: 'green',
     icon: <IconBattery size={20} />,
-    label: 'Battery slots available',
-    display: '4564',
-    frac: '/4567',
-    sub: 'across all nodes',
-    ring: true,
+    label: 'Available Battery Slots',
+    display: '32,720 / 32,720',
+    sub: '100% available',
+    kind: 'battery',
+    footerTone: 'success',
+    footerLabel: 'Stored',
+    fill: 100,
   },
   {
     tone: 'ice',
-    icon: <IconCalendar size={20} />,
-    label: 'Pending reservations',
-    display: '1',
-    sub: '1 approved',
-    spark: '#2F73E8',
-    points: '1,16 9,18 17,11 26,13 39,4',
+    icon: <IconCheckCircle size={20} />,
+    label: 'Operational Status',
+    display: '4 / 5',
+    sub: 'Some nodes offline',
+    kind: 'status',
+    footerTone: 'warning',
+    footerLabel: '1 offline',
+    fill: 78,
   },
 ]
 
@@ -179,17 +188,23 @@ export default function Dashboard() {
         <div className="smg-kpis">
           {KPIS.map((k) => (
             <div className={`smg-kpi ${k.tone}`} key={k.label}>
+              <button className="smg-kpi-arrow" type="button" aria-label="Open card summary">
+                <IconArrowRight size={13} />
+              </button>
+
               <div className="smg-kpi-icon">{k.icon}</div>
+
               <div className="smg-kpi-main">
+                <div className="smg-kpi-value">{k.display}</div>
                 <div className="smg-kpi-label">{k.label}</div>
-                <div className="smg-kpi-value">
-                  {k.display}
-                  {k.frac && <em>{k.frac}</em>}
-                </div>
                 <div className="smg-kpi-sub">{k.sub}</div>
-              </div>
-              <div className="smg-kpi-side">
-                {k.ring ? <Ring /> : <Spark stroke={k.spark} points={k.points} />}
+
+                <div className="smg-kpi-footer">
+                  <span className={`smg-kpi-pill ${k.footerTone}`}>{k.footerLabel}</span>
+                  <span className="smg-kpi-track">
+                    <i style={{ width: `${k.fill}%` }} />
+                  </span>
+                </div>
               </div>
             </div>
           ))}
