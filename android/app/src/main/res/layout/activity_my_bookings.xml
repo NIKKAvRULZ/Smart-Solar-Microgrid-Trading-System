@@ -3,19 +3,18 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FAFAFA">
+    android:background="#0F172A">
 
-    <!-- The Pinned Bottom Navigation Bar -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:background="#FFFFFF"
+        android:background="#1E293B"
         app:menu="@menu/bottom_nav_menu"
         app:labelVisibilityMode="labeled"
-        app:itemIconTint="#0066CC"
-        app:itemTextColor="#0066CC" />
+        app:itemIconTint="#F59E0B"
+        app:itemTextColor="#94A3B8" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -28,14 +27,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp"
-            android:background="#0066CC">
+            android:padding="24dp">
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="My Bookings"
-                android:textSize="24sp"
+                android:textSize="28sp"
                 android:textStyle="bold"
                 android:textColor="#FFFFFF" />
 
@@ -43,32 +41,36 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="16dp"
                 android:gravity="center_vertical">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Filter by Status: "
-                    android:textColor="#FFFFFF"
+                    android:textColor="#94A3B8"
                     android:textStyle="bold"/>
 
-                <!-- The Dropdown Filter -->
                 <Spinner
                     android:id="@+id/spinnerFilterStatus"
                     android:layout_width="match_parent"
-                    android:layout_height="40dp"
-                    android:backgroundTint="#FFFFFF"
-                    android:layout_marginStart="8dp"/>
+                    android:layout_height="45dp"
+                    android:background="#FFFFFF"
+                    android:layout_marginStart="12dp"/>
             </LinearLayout>
         </LinearLayout>
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnGoToCreateBooking"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            android:text="+ CREATE NEW BOOKING" />
+            android:layout_height="60dp"
+            android:layout_marginHorizontal="24dp"
+            android:layout_marginBottom="16dp"
+            android:text="+ CREATE NEW BOOKING"
+            android:textColor="#0F172A"
+            android:textStyle="bold"
+            app:backgroundTint="#F59E0B"
+            app:cornerRadius="12dp"/>
 
         <!-- The List -->
         <androidx.recyclerview.widget.RecyclerView

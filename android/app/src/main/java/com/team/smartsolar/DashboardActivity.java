@@ -2,6 +2,7 @@ package com.team.smartsolar;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -15,6 +16,7 @@ import com.team.smartsolar.database.DatabaseHelper;
 import com.team.smartsolar.models.ReservationResponse;
 import com.team.smartsolar.network.RetrofitClient;
 import com.team.smartsolar.network.SolarApi;
+import com.team.smartsolar.models.NodeResponse;
 
 import java.util.List;
 
@@ -27,6 +29,9 @@ public class DashboardActivity extends BaseActivity implements OnMapReadyCallbac
     private TextView txtPendingCount, txtApprovedCount, txtCompletedCount, txtWelcome;
     private String sessionNic;
     private GoogleMap mMap;
+
+    // Dictionary to hold live station names for the Next Booking Widget
+    private java.util.Map<String, String> stationMap = new java.util.HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,14 +52,40 @@ public class DashboardActivity extends BaseActivity implements OnMapReadyCallbac
             return;
         }
 
-        txtWelcome.setText("Welcome, Prosumer " + sessionNic);
+        // Set the personalized greeting directly
+        if (txtWelcome != null) {
+            txtWelcome.setText("Welcome, Nithika");
+        }
+
         setupBottomNavigation(R.id.nav_dashboard);
+
+        // Safely hook up Quick Actions to prevent NullPointerExceptions
+        Button btnQuickBook = findViewById(R.id.btnQuickBook);
+        if (btnQuickBook != null) {
+            btnQuickBook.setOnClickListener(v -> startActivity(new Intent(DashboardActivity.this, CreateBookingActivity.class)));
+        }
+
+        Button btnQuickHistory = findViewById(R.id.btnQuickHistory);
+        if (btnQuickHistory != null) {
+            btnQuickHistory.setOnClickListener(v -> startActivity(new Intent(DashboardActivity.this, MyBookingsActivity.class)));
+        }
 
         // Initialize the Map Fragment
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.mapPlaceholder);
         if (mapFragment != null) {
             mapFragment.getMapAsync(this);
+        }
+
+        Button btnViewStations = findViewById(R.id.btnViewStations);
+        if (btnViewStations != null) {
+            btnViewStations.setOnClickListener(v -> {
+                if (mMap != null) {
+                    mMap.clear();
+                    onMapReady(mMap);
+                    Toast.makeText(DashboardActivity.this, "Refreshing grid stations...", Toast.LENGTH_SHORT).show();
+                }
+            });
         }
     }
 
@@ -66,27 +97,77 @@ public class DashboardActivity extends BaseActivity implements OnMapReadyCallbac
 
     private void loadDashboardMetrics() {
         SolarApi api = RetrofitClient.getClient().create(SolarApi.class);
+
+        // 1. Fetch stations first to map their names
+        api.getAllStations().enqueue(new Callback<List<NodeResponse>>() {
+            @Override
+            public void onResponse(Call<List<NodeResponse>> call, Response<List<NodeResponse>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    for (NodeResponse node : response.body()) {
+                        stationMap.put(node.getId(), node.getName());
+                    }
+                }
+                fetchReservationsAndUpdateDashboard(api);
+            }
+
+            @Override
+            public void onFailure(Call<List<NodeResponse>> call, Throwable t) {
+                fetchReservationsAndUpdateDashboard(api);
+            }
+        });
+    }
+
+    private void fetchReservationsAndUpdateDashboard(SolarApi api) {
         api.getMyReservations(sessionNic).enqueue(new Callback<List<ReservationResponse>>() {
             @Override
             public void onResponse(Call<List<ReservationResponse>> call, Response<List<ReservationResponse>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     int pending = 0, approved = 0, completed = 0;
+                    ReservationResponse nextBooking = null;
 
                     for (ReservationResponse res : response.body()) {
                         if ("Pending".equalsIgnoreCase(res.getStatus())) {
                             pending++;
                         } else if ("Approved".equalsIgnoreCase(res.getStatus())) {
                             approved++;
+                            // Grab the first approved booking to feature on the dashboard
+                            if (nextBooking == null) nextBooking = res;
                         } else if ("Completed".equalsIgnoreCase(res.getStatus())) {
                             completed++;
                         }
                     }
 
-                    txtPendingCount.setText(String.valueOf(pending));
-                    txtApprovedCount.setText(String.valueOf(approved));
-                    txtCompletedCount.setText(String.valueOf(completed));
-                } else {
-                    Toast.makeText(DashboardActivity.this, "Failed to load metrics", Toast.LENGTH_SHORT).show();
+                    // Safely update UI
+                    if (txtPendingCount != null) txtPendingCount.setText(String.valueOf(pending));
+                    if (txtApprovedCount != null) txtApprovedCount.setText(String.valueOf(approved));
+                    if (txtCompletedCount != null) txtCompletedCount.setText(String.valueOf(completed));
+
+                    // Update the Next Booking Card
+                    TextView txtNextStation = findViewById(R.id.txtNextStation);
+                    TextView txtNextTime = findViewById(R.id.txtNextTime);
+
+                    if (txtNextStation != null && txtNextTime != null) {
+                        if (nextBooking != null) {
+                            String realStationName = stationMap.containsKey(nextBooking.getNodeId())
+                                    ? stationMap.get(nextBooking.getNodeId())
+                                    : "Station ID: " + nextBooking.getNodeId().substring(0, 6);
+
+                            txtNextStation.setText(realStationName);
+
+                            // Clean up the ISO date string for display (e.g., 2026-09-25T14:30:00Z -> 2026-09-25)
+                            try {
+                                String rawDate = nextBooking.getScheduledDateTime();
+                                String displayDate = rawDate.contains("T") ? rawDate.split("T")[0] : rawDate;
+                                txtNextTime.setText(displayDate + " | " + nextBooking.getEnergyAmount() + " kWh Reserved");
+                            } catch (Exception e) {
+                                txtNextTime.setText(nextBooking.getEnergyAmount() + " kWh Reserved");
+                            }
+
+                        } else {
+                            txtNextStation.setText("No upcoming bookings");
+                            txtNextTime.setText("Ready to book a microgrid slot?");
+                        }
+                    }
                 }
             }
 
@@ -101,11 +182,27 @@ public class DashboardActivity extends BaseActivity implements OnMapReadyCallbac
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        // Example: Drop a pin in Colombo.
-        // To make this dynamic, you will need to add a GET /api/nodes call via Retrofit here
-        // to fetch live stations and loop through them to add markers.
-        LatLng defaultStation = new LatLng(6.9271, 79.8612);
-        mMap.addMarker(new MarkerOptions().position(defaultStation).title("Microgrid Station 1"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultStation, 12));
+        SolarApi api = RetrofitClient.getClient().create(SolarApi.class);
+        api.getAllStations().enqueue(new Callback<List<NodeResponse>>() {
+            @Override
+            public void onResponse(Call<List<NodeResponse>> call, Response<List<NodeResponse>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    for (NodeResponse station : response.body()) {
+                        LatLng location = new LatLng(station.getLatitude(), station.getLongitude());
+                        mMap.addMarker(new MarkerOptions().position(location).title(station.getStationName()));
+                    }
+
+                    if (!response.body().isEmpty()) {
+                        LatLng firstLoc = new LatLng(response.body().get(0).getLatitude(), response.body().get(0).getLongitude());
+                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(firstLoc, 10));
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<NodeResponse>> call, Throwable t) {
+                Toast.makeText(DashboardActivity.this, "Failed to load map markers", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

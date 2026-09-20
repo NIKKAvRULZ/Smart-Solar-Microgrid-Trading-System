@@ -35,6 +35,7 @@ public class MyBookingsActivity extends BaseActivity {
     private RecyclerView recyclerView;
     private BookingAdapter adapter;
     private Spinner spinnerFilterStatus;
+    private java.util.Map<String, String> stationMap = new java.util.HashMap<>();
 
     // Master list from the server
     private List<ReservationResponse> allServerReservations = new ArrayList<>();
@@ -118,7 +119,6 @@ public class MyBookingsActivity extends BaseActivity {
         List<Booking> filteredBookings = new ArrayList<>();
 
         for (ReservationResponse res : allServerReservations) {
-            // If "All" is selected, or if the item's status matches the dropdown
             if (statusFilter.equals("All") || statusFilter.equalsIgnoreCase(res.getStatus())) {
                 String displayDate = "";
                 String displayTime = "";
@@ -145,9 +145,9 @@ public class MyBookingsActivity extends BaseActivity {
                     timeFormat.setTimeZone(TimeZone.getDefault());
                     String startTime = timeFormat.format(parsedDate);
 
-                    Calendar cal = Calendar.getInstance();
+                    java.util.Calendar cal = java.util.Calendar.getInstance();
                     cal.setTime(parsedDate);
-                    cal.add(Calendar.MINUTE, res.getDurationMinutes());
+                    cal.add(java.util.Calendar.MINUTE, res.getDurationMinutes());
                     String endTime = timeFormat.format(cal.getTime());
 
                     displayTime = startTime + " - " + endTime;
@@ -157,9 +157,14 @@ public class MyBookingsActivity extends BaseActivity {
                     displayTime = "Format Error";
                 }
 
+                // Look up the real name from the dictionary, fallback to a shortened ID if not found
+                String realStationName = stationMap.containsKey(res.getNodeId())
+                        ? stationMap.get(res.getNodeId())
+                        : "Station " + res.getNodeId().substring(0, 6) + "...";
+
                 filteredBookings.add(new Booking(
                         res.getId(),
-                        res.getNodeId(),
+                        realStationName, // <-- This passes the readable name instead of res.getNodeId()
                         displayDate,
                         displayTime,
                         String.valueOf(res.getEnergyAmount()),

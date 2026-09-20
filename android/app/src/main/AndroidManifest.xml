@@ -17,7 +17,7 @@
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="YOUR_GOOGLE_MAPS_API_KEY_HERE" />
+            android:value="AIzaSyB5Qa2DfyDoqGyYlfghJDlmZyNNNOrJl9E" />
 
         <activity
             android:name=".MainActivity"
@@ -41,10 +41,6 @@
             android:name=".DashboardActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
-
-        <meta-data
-            android:name="com.google.android.geo.API_KEY"
-            android:value="YOUR_API_KEY_HERE" />
 
         <activity
             android:name=".ProfileActivity"
