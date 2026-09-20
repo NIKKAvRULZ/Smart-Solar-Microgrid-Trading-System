@@ -226,11 +226,38 @@
                 app:strokeWidth="1dp"
                 app:strokeColor="#1E293B">
 
-                <androidx.fragment.app.FragmentContainerView
-                    android:id="@+id/mapPlaceholder"
-                    android:name="com.google.android.gms.maps.SupportMapFragment"
+                <!-- Map Placeholder Area -->
+                <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"/>
+                    android:layout_height="300dp"
+                    android:layout_marginBottom="16dp"
+                    app:cardCornerRadius="24dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="1dp"
+                    app:strokeColor="#1E293B">
+
+                    <!-- The RelativeLayout stacks the clickable layer directly on top of the Map Fragment -->
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                        <androidx.fragment.app.FragmentContainerView
+                            android:id="@+id/mapPlaceholder"
+                            android:name="com.google.android.gms.maps.SupportMapFragment"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"/>
+
+                        <!-- This transparent layer intercepts touches and prevents scrolling conflicts -->
+                        <View
+                            android:id="@+id/mapClickOverlay"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:background="?attr/selectableItemBackground"/>
+
+                    </RelativeLayout>
+                </com.google.android.material.card.MaterialCardView>
             </com.google.android.material.card.MaterialCardView>
 
             <com.google.android.material.button.MaterialButton

@@ -2,6 +2,7 @@ package com.team.smartsolar;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -70,6 +71,12 @@ public class DashboardActivity extends BaseActivity implements OnMapReadyCallbac
             btnQuickHistory.setOnClickListener(v -> startActivity(new Intent(DashboardActivity.this, MyBookingsActivity.class)));
         }
 
+        View mapClickOverlay = findViewById(R.id.mapClickOverlay);
+        if (mapClickOverlay != null) {
+            mapClickOverlay.setOnClickListener(v -> {
+                startActivity(new Intent(DashboardActivity.this, StationMapActivity.class));
+            });
+        }
         // Initialize the Map Fragment
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.mapPlaceholder);
@@ -181,7 +188,7 @@ public class DashboardActivity extends BaseActivity implements OnMapReadyCallbac
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-
+        mMap.getUiSettings().setAllGesturesEnabled(false);
         SolarApi api = RetrofitClient.getClient().create(SolarApi.class);
         api.getAllStations().enqueue(new Callback<List<NodeResponse>>() {
             @Override
