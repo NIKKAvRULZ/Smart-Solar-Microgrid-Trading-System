@@ -1,5 +1,19 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import {
+  CalendarDays,
+  Clock3,
+  MapPin,
+  Eye,
+  Pencil,
+  Check,
+  Trash,
+  Search,
+  ListFilter,
+  Plus,
+  QrCode,
+  User,
+} from 'lucide-react'
+import {
   getReservations,
   getProsumers,
   getNodes,
@@ -11,34 +25,14 @@ import {
 } from '../api/api'
 import { getErrorMessage } from '../utils/errors'
 import Modal from '../components/ui/Modal'
-import {
-  PageHeader,
-  SearchInput,
-  EmptyState,
-  Badge,
-  Spinner,
-  ConfirmDialog,
-} from '../components/ui/Widgets'
-import {
-  IconPlus,
-  IconEdit,
-  IconReservation,
-  IconCheck,
-  IconTrash,
-  IconClock,
-  IconEye,
-  IconQrCode,
-  IconMapPin,
-  IconUser,
-  IconCalendar,
-} from '../components/ui/Icons'
+import { EmptyState, Spinner, ConfirmDialog } from '../components/ui/Widgets'
 import { useToast } from '../components/ui/Toast'
 
-const STATUS_TONE = {
-  Pending: 'pending',
-  Approved: 'approved',
-  Completed: 'completed',
-  Cancelled: 'cancelled',
+const STATUS_CLASS = {
+  Pending: 'res-pill-amber',
+  Approved: 'res-pill-green',
+  Completed: 'res-pill-blue',
+  Cancelled: 'res-pill-red',
 }
 
 const STATUS_BY_INDEX = { 0: 'Pending', 1: 'Approved', 2: 'Completed', 3: 'Cancelled' }
@@ -91,6 +85,7 @@ export default function Reservations() {
   const [nodes, setNodes] = useState([])
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('All')
+  const [filterOpen, setFilterOpen] = useState(false)
   const [loading, setLoading] = useState(true)
   const [createOpen, setCreateOpen] = useState(false)
   const [editReservation, setEditReservation] = useState(null)
@@ -262,40 +257,72 @@ export default function Reservations() {
   }
 
   return (
-    <>
-      <PageHeader
-        title="Reservations"
-        subtitle="Power trading bookings across all microgrid nodes."
-        actions={
+    <div className="res-dash">
+      <div className="res-container">
+        <div className="res-header">
+          <div className="res-title">
+            <h1>Reservations</h1>
+            <p>Power trading bookings across all microgrid nodes.</p>
+          </div>
           <button className="btn btn-solar" onClick={openCreate}>
-            <IconPlus size={16} /> New Reservation
+            <Plus size={16} /> New Reservation
           </button>
-        }
-      />
-
-      <div className="panel">
-        <div className="filter-tabs">
-          {['All', ...STATUS_ORDER].map((s) => (
-            <button
-              key={s}
-              className={`filter-pill ${statusFilter === s ? 'active' : ''}`}
-              onClick={() => setStatusFilter(s)}
-            >
-              {s}
-              <span className="count">{counts[s] || 0}</span>
-            </button>
-          ))}
         </div>
 
-        <div className="toolbar">
-          <div className="toolbar-left">
-            <SearchInput value={search} onChange={setSearch} placeholder="Search by prosumer, node, status..." />
-            <span className="cell-muted" style={{ fontSize: 13 }}>
-              {filtered.length} of {reservations.length}
-            </span>
+        <div className="res-panel">
+          <div className="res-filters">
+            {['All', ...STATUS_ORDER].map((s) => (
+              <button
+                key={s}
+                className={`res-filter res-filter-${s.toLowerCase()}${statusFilter === s ? ' selected' : ''}`}
+                onClick={() => setStatusFilter(s)}
+              >
+                {s}
+                <span className="res-badge">{counts[s] || 0}</span>
+              </button>
+            ))}
+          </div>
+
+        <div className="res-toolbar">
+          <div className="res-search">
+            <Search size={17} />
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search by prosumer, node, stat"
+            />
+          </div>
+          <span className="res-count">
+            {filtered.length} of {reservations.length}
+          </span>
+          <div className="res-filter-wrap">
+            <button
+              className={`res-filter-btn${filterOpen ? ' is-on' : ''}`}
+              title="Filter by status"
+              onClick={() => setFilterOpen(!filterOpen)}
+            >
+              <ListFilter size={16} />
+            </button>
+            {filterOpen && (
+              <div className="res-filter-menu">
+                {['All', ...STATUS_ORDER].map((s) => (
+                  <button
+                    key={s}
+                    className={statusFilter === s ? 'active' : ''}
+                    onClick={() => {
+                      setStatusFilter(s)
+                      setFilterOpen(false)
+                    }}
+                  >
+                    <span>{s}</span>
+                    {statusFilter === s && <Check size={13} />}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
           <button
-            className="btn btn-ghost btn-sm"
+            className="res-clear"
             onClick={() => {
               setStatusFilter('All')
               setSearch('')
@@ -311,13 +338,13 @@ export default function Reservations() {
           </div>
         ) : filtered.length === 0 ? (
           <EmptyState
-            icon={<IconReservation size={26} />}
+            icon={<CalendarDays size={26} />}
             title={reservations.length === 0 ? 'No reservations yet' : 'No matching reservations'}
             hint="Create a booking on a prosumer's behalf, or wait for bookings from the mobile app."
           />
         ) : (
-          <div className="table-wrap">
-            <table className="data-table">
+          <div className="res-table-wrap">
+            <table className="res-table">
               <thead>
                 <tr>
                   <th>Prosumer</th>
@@ -334,77 +361,78 @@ export default function Reservations() {
                   const prosumer = prosumerOf(r)
                   const node = nodeOf(r)
                   return (
-                    <tr key={r.id} style={{ cursor: 'pointer' }} onClick={() => setDetailReservation(r)}>
-                      <td>
-                        <div className="cell-strong">
-                          {prosumer?.fullName || r.prosumerNic}
-                        </div>
-                        <div className="cell-muted" style={{ fontSize: 12 }}>
+                    <tr key={r.id}>
+                      <td data-label="Prosumer">
+                        <div className="res-strong">{prosumer?.fullName || r.prosumerNic}</div>
+                        <div className="res-muted">
                           NIC · {r.prosumerNic}
                           {prosumer?.phone ? ` · ${prosumer.phone}` : ''}
                         </div>
                       </td>
-                      <td>
-                        <div className="cell-strong" style={{ fontSize: 13 }}>{nodeName(r.nodeId)}</div>
+                      <td data-label="Microgrid node">
+                        <div className="res-strong res-node">{nodeName(r.nodeId)}</div>
                         {node && (
-                          <div className="cell-muted" style={{ fontSize: 12 }}>
-                            <IconMapPin size={11} style={{ verticalAlign: '-1px' }} />{' '}
+                          <div className="res-muted res-coords">
+                            <MapPin size={12} />
                             {node.latitude?.toFixed(3)}, {node.longitude?.toFixed(3)}
                           </div>
                         )}
                       </td>
-                      <td>
-                        <div style={{ fontWeight: 600, fontSize: 13 }}>{formatDate(r.scheduledDateTime)}</div>
-                        <div className="cell-sub">
-                          <IconClock size={12} style={{ color: 'var(--ink-faint)' }} />
-                          <span className="cell-muted" style={{ fontSize: 12 }}>
-                            {formatTime(r.scheduledDateTime)} · {timeFromNow(r.scheduledDateTime)}
-                          </span>
+                      <td data-label="Scheduled">
+                        <div className="res-strong res-date">
+                          <CalendarDays size={14} /> {formatDate(r.scheduledDateTime)}
+                        </div>
+                        <div className="res-muted res-time">
+                          <Clock3 size={13} /> {formatTime(r.scheduledDateTime)} · {timeFromNow(r.scheduledDateTime)}
                         </div>
                       </td>
-                      <td>
-                        <span style={{ fontSize: 13 }}>{formatDuration(r.durationMinutes)}</span>
+                      <td data-label="Duration">
+                        <span className="res-duration">{formatDuration(r.durationMinutes)}</span>
                       </td>
-                      <td>
-                        <Badge tone={STATUS_TONE[status] || 'neutral'}>{status}</Badge>
+                      <td data-label="Status">
+                        <span className={`res-pill ${STATUS_CLASS[status] || 'res-pill-blue'}`}>
+                          <span className="dot" /> {status}
+                        </span>
                         {r.qrCode && status === 'Approved' && (
-                          <div className="cell-muted" style={{ fontSize: 11, marginTop: 3 }}>
-                            <IconQrCode size={11} style={{ verticalAlign: '-1px' }} /> dispatch code
+                          <div className="res-muted res-dispatch">
+                            <QrCode size={11} /> {r.qrCode}
                           </div>
                         )}
                       </td>
-                      <td onClick={(e) => e.stopPropagation()}>
-                        <button className="icon-action" title="View details" onClick={() => setDetailReservation(r)}>
-                          <IconEye size={16} />
-                        </button>
-                        {(status === 'Pending' || status === 'Approved') && (
-                          <button className="icon-action" title="Reschedule" onClick={() => openEdit(r)}>
-                            <IconEdit size={16} />
+                      <td data-label="Actions">
+                        <div className="res-actions">
+                          <button className="res-action-btn" title="View details" onClick={() => setDetailReservation(r)}>
+                            <Eye size={15} />
                           </button>
-                        )}
-                        {status === 'Pending' && (
-                          <button
-                            className="icon-action success"
-                            title="Approve"
-                            onClick={() => handleAction(approveReservation, r, 'Reservation approved.')}
-                          >
-                            <IconCheck size={16} />
-                          </button>
-                        )}
-                        {status === 'Approved' && (
-                          <button
-                            className="icon-action success"
-                            title="Complete"
-                            onClick={() => handleAction(completeReservation, r, 'Marked as completed.')}
-                          >
-                            <IconCheck size={16} />
-                          </button>
-                        )}
-                        {(status === 'Pending' || status === 'Approved') && (
-                          <button className="icon-action warn" title="Cancel" onClick={() => setConfirmCancel(r)}>
-                            <IconTrash size={16} />
-                          </button>
-                        )}
+                          {(status === 'Pending' || status === 'Approved') && (
+                            <button className="res-action-btn" title="Reschedule" onClick={() => openEdit(r)}>
+                              <Pencil size={15} />
+                            </button>
+                          )}
+                          {status === 'Pending' && (
+                            <button
+                              className="res-action-btn success"
+                              title="Approve"
+                              onClick={() => handleAction(approveReservation, r, 'Reservation approved.')}
+                            >
+                              <Check size={15} />
+                            </button>
+                          )}
+                          {status === 'Approved' && (
+                            <button
+                              className="res-action-btn success"
+                              title="Complete"
+                              onClick={() => handleAction(completeReservation, r, 'Marked as completed.')}
+                            >
+                              <Check size={15} />
+                            </button>
+                          )}
+                          {(status === 'Pending' || status === 'Approved') && (
+                            <button className="res-action-btn danger" title="Cancel" onClick={() => setConfirmCancel(r)}>
+                              <Trash size={15} />
+                            </button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   )
@@ -446,7 +474,7 @@ export default function Reservations() {
                         setDetailReservation(null)
                       }}
                     >
-                      <IconEdit size={15} /> Reschedule
+                      <Pencil size={15} /> Reschedule
                     </button>
                     <button
                       type="button"
@@ -456,7 +484,7 @@ export default function Reservations() {
                         setDetailReservation(null)
                       }}
                     >
-                      <IconTrash size={15} /> Cancel
+                      <Trash size={15} /> Cancel
                     </button>
                   </>
                 )}
@@ -474,13 +502,15 @@ export default function Reservations() {
             return (
               <>
                 <div className="mb-3">
-                  <Badge tone={STATUS_TONE[status] || 'neutral'}>{status}</Badge>
+                  <span className={`res-pill res-pill-lg ${STATUS_CLASS[status] || 'res-pill-blue'}`}>
+                    <span className="dot" /> {status}
+                  </span>
                 </div>
 
                 {r.qrCode && (
                   <div className="mb-3">
                     <div className="qr-token">
-                      <IconQrCode size={16} /> {r.qrCode}
+                      <QrCode size={16} /> {r.qrCode}
                     </div>
                     <div style={{ fontSize: 11.5, color: 'var(--ink-faint)', marginTop: 5 }}>
                       Share this dispatch code with the grid operator to complete the energy transfer.
@@ -491,7 +521,7 @@ export default function Reservations() {
                 <ul className="detail-list">
                   <DetailRow label="Prosumer">
                     <div className="cell-sub">
-                      <IconUser size={14} style={{ color: 'var(--ink-faint)' }} />
+                      <User size={14} style={{ color: 'var(--ink-faint)' }} />
                       <span className="cell-strong">{prosumer?.fullName || 'Unknown prosumer'}</span>
                     </div>
                     <div className="cell-muted" style={{ fontSize: 12.5 }}>
@@ -513,7 +543,7 @@ export default function Reservations() {
                     <div className="cell-strong">{node?.name || r.nodeId}</div>
                     {node && (
                       <div className="cell-muted" style={{ fontSize: 12.5 }}>
-                        <IconMapPin size={12} style={{ verticalAlign: '-1px' }} /> {node.latitude}, {node.longitude} ·{' '}
+                        <MapPin size={12} style={{ verticalAlign: '-1px' }} /> {node.latitude}, {node.longitude} ·{' '}
                         {node.capacityKWh} kWh · {node.availableBatterySlots}/{node.totalBatterySlots} slots
                       </div>
                     )}
@@ -521,7 +551,7 @@ export default function Reservations() {
 
                   <DetailRow label="Scheduled">
                     <div className="cell-sub">
-                      <IconCalendar size={14} style={{ color: 'var(--ink-faint)' }} />
+                      <CalendarDays size={14} style={{ color: 'var(--ink-faint)' }} />
                       <span style={{ fontSize: 14, fontWeight: 600 }}>
                         {formatDate(r.scheduledDateTime)} · {formatTime(r.scheduledDateTime)}
                       </span>
@@ -680,6 +710,7 @@ export default function Reservations() {
         onCancel={() => setConfirmCancel(null)}
         onConfirm={() => (confirmCancel ? handleAction(cancelReservation, confirmCancel, 'Reservation cancelled.') : Promise.resolve())}
       />
-    </>
+      </div>
+    </div>
   )
 }
