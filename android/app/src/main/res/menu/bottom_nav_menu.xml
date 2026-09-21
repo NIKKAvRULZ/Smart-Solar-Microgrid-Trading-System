@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- ID must be nav_dashboard to match DashboardActivity.java -->
+    <item
+        android:id="@+id/nav_dashboard"
+        android:icon="@drawable/ic_map"
+        android:title="Dashboard" />
+
+    <!-- ID must be nav_booking to match MyBookingsActivity.java & CreateBookingActivity.java -->
+    <item
+        android:id="@+id/nav_booking"
+        android:icon="@drawable/ic_book"
+        android:title="Bookings" />
+
+    <item
+        android:id="@+id/nav_profile"
+        android:icon="@drawable/ic_profile"
+        android:title="Profile" />
+</menu>
