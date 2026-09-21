@@ -14,6 +14,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.team.smartsolar.database.DatabaseHelper;
+import com.team.smartsolar.models.ProsumerProfile;
 import com.team.smartsolar.models.ReservationResponse;
 import com.team.smartsolar.network.RetrofitClient;
 import com.team.smartsolar.network.SolarApi;
@@ -47,15 +48,16 @@ public class DashboardActivity extends BaseActivity implements OnMapReadyCallbac
         DatabaseHelper db = new DatabaseHelper(this);
         sessionNic = db.getSessionNic();
 
-        if (sessionNic == null) {
-            startActivity(new Intent(this, LoginActivity.class));
-            finish();
-            return;
-        }
+        if (sessionNic != null) {
+            ProsumerProfile profile = db.getCachedProfile(sessionNic);
 
-        // Set the personalized greeting directly
-        if (txtWelcome != null) {
-            txtWelcome.setText("Welcome, Nithika");
+            if (profile != null && profile.getFullName() != null) {
+                // Extract just the first name for a cleaner UI
+                String firstName = profile.getFullName().split(" ")[0];
+                txtWelcome.setText("Welcome, " + firstName);
+            } else {
+                txtWelcome.setText("Welcome, Prosumer");
+            }
         }
 
         setupBottomNavigation(R.id.nav_dashboard);

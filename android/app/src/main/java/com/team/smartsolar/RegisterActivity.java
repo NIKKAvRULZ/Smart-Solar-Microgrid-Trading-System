@@ -74,13 +74,13 @@ public class RegisterActivity extends AppCompatActivity {
 
         // 2. Send to C# API endpoint using Retrofit
         SolarApi api = RetrofitClient.getClient().create(SolarApi.class);
-        api.registerUser(request).enqueue(new Callback<Void>() {
+        api.registerProsumer(request).enqueue(new Callback<Void>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {
                     Toast.makeText(RegisterActivity.this, "Registration Successful! Please log in.", Toast.LENGTH_LONG).show();
 
-                    // Route back to Login
+                    // Route back to Log in
                     Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
                     startActivity(intent);
                     finish();
