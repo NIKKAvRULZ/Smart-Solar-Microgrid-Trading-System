@@ -92,15 +92,23 @@ public class MyBookingsActivity extends BaseActivity {
             return;
         }
 
+        // 1. Load cached stations and map their IDs to their readable names
+        stationMap.clear();
+        for (com.team.smartsolar.models.NodeResponse node : db.getCachedStations()) {
+            String id = node.getId() != null ? node.getId() : node.getStationId();
+            String name = node.getName() != null ? node.getName() : node.getStationName();
+            if (id != null && name != null) {
+                stationMap.put(id, name);
+            }
+        }
+
+        // 2. Fetch the user's reservations
         SolarApi api = RetrofitClient.getClient().create(SolarApi.class);
         api.getMyReservations(nic).enqueue(new Callback<List<ReservationResponse>>() {
             @Override
             public void onResponse(Call<List<ReservationResponse>> call, Response<List<ReservationResponse>> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    // Save the master list
                     allServerReservations = response.body();
-
-                    // Trigger the filter based on what the spinner is currently set to
                     applyFilter(spinnerFilterStatus.getSelectedItem().toString());
                 } else {
                     Toast.makeText(MyBookingsActivity.this, "Failed to fetch bookings.", Toast.LENGTH_SHORT).show();
