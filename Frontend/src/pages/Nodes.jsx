@@ -1,17 +1,21 @@
 import React, { useEffect, useState } from 'react'
+import {
+  Network,
+  Zap,
+  Battery,
+  CircleCheck,
+  Search,
+  ListFilter,
+  MapPin,
+  Pencil,
+  Plus,
+  Trash,
+} from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { getNodes, createNode, updateNode, deactivateNode } from '../api/api'
 import { getErrorMessage } from '../utils/errors'
 import Modal from '../components/ui/Modal'
-import {
-  PageHeader,
-  SearchInput,
-  EmptyState,
-  Badge,
-  Spinner,
-  ConfirmDialog,
-} from '../components/ui/Widgets'
-import { IconPlus, IconEdit, IconTrash, IconNode, IconMapPin, IconBattery, IconZap } from '../components/ui/Icons'
+import { EmptyState, Spinner, ConfirmDialog } from '../components/ui/Widgets'
 import { useToast } from '../components/ui/Toast'
 
 const EMPTY_FORM = {
@@ -24,11 +28,15 @@ const EMPTY_FORM = {
   operatingSchedule: 'Mon-Sun 06:00-20:00',
 }
 
+const fmtCap = (value) =>
+  new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(Number(value) || 0)
+
 export default function Nodes() {
   const { user } = useAuth()
   const toast = useToast()
   const [nodes, setNodes] = useState([])
   const [search, setSearch] = useState('')
+  const [statusFilter, setStatusFilter] = useState('all')
   const [loading, setLoading] = useState(true)
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState(null)
@@ -123,38 +131,123 @@ export default function Nodes() {
   const q = search.trim().toLowerCase()
   const filtered = nodes.filter(
     (n) =>
-      !q ||
-      n.name?.toLowerCase().includes(q) ||
-      n.operatingSchedule?.join(' ')?.toLowerCase().includes(q) ||
-      String(n.capacityKWh).includes(q),
+      (statusFilter === 'all' || n.isActive) &&
+      (!q ||
+        n.name?.toLowerCase().includes(q) ||
+        n.operatingSchedule?.join(' ')?.toLowerCase().includes(q) ||
+        String(n.capacityKWh).includes(q)),
   )
 
-  return (
-    <>
-      <PageHeader
-        title="Microgrid Nodes"
-        subtitle="Solar grid hubs — location, capacity and battery storage slots."
-        actions={
-          user.role === 'Backoffice' ? (
+  const totalCapacity = nodes.reduce((sum, node) => sum + (Number(node.capacityKWh) || 0), 0)
+  const availableBatterySlots = nodes.reduce((sum, node) => sum + (Number(node.availableBatterySlots) || 0), 0)
+  const totalBatterySlots = nodes.reduce((sum, node) => sum + (Number(node.totalBatterySlots) || 0), 0)
+  const activeNodes = nodes.filter((node) => node.isActive).length
+  const batteryPct = totalBatterySlots ? (availableBatterySlots / totalBatterySlots) * 100 : 0
+  const statusPct = nodes.length ? (activeNodes / nodes.length) * 100 : 0
+
+return (
+    <div className="nodes-dash">
+      <div className="nodes-container">
+        <div className="nodes-header">
+          <div className="nodes-title">
+            <h1>Microgrid Nodes</h1>
+            <p>Solar grid hubs — location, capacity and battery storage slots.</p>
+          </div>
+          {user.role === 'Backoffice' ? (
             <button className="btn btn-solar" onClick={openCreate}>
-              <IconPlus size={16} /> Register Node
+              <Plus size={16} /> Register Node
             </button>
           ) : (
             <span className="cell-muted" style={{ fontSize: 13 }}>
               You can update battery slots on each node below.
             </span>
-          )
-        }
-      />
+          )}
+        </div>
 
-      <div className="panel">
-        <div className="toolbar">
-          <div className="toolbar-left">
-            <SearchInput value={search} onChange={setSearch} placeholder="Search nodes..." />
-            <span className="cell-muted" style={{ fontSize: 13 }}>
-              {filtered.length} of {nodes.length}
-            </span>
+        <div className="nodes-cards">
+          <div className="node-card">
+            <div className="node-card-icon icon-royal">
+              <Network size={20} />
+            </div>
+            <div className="node-card-value">{nodes.length}</div>
+            <div className="node-card-label">Total Nodes</div>
+            <div className="node-card-sub">Active monitoring hubs</div>
+            <div className="node-card-bar">
+              <div className="track">
+                <span className="fill fill-blue" style={{ width: `${Math.max(statusPct, 4)}%` }} />
+              </div>
+            </div>
           </div>
+
+          <div className="node-card">
+            <div className="node-card-icon icon-amber">
+              <Zap size={20} />
+            </div>
+            <div className="node-card-value">{fmtCap(totalCapacity)} kWh</div>
+            <div className="node-card-label">Total Capacity</div>
+            <div className="node-card-sub">Across all nodes</div>
+            <div className="node-card-bar">
+              <div className="track">
+                <span className="fill fill-amber" style={{ width: '76%' }} />
+              </div>
+            </div>
+          </div>
+
+          <div className="node-card">
+            <div className="node-card-icon icon-teal">
+              <Battery size={20} />
+            </div>
+            <div className="node-card-value">
+              {fmtCap(availableBatterySlots)} / {fmtCap(totalBatterySlots)}
+            </div>
+            <div className="node-card-label">Available Battery Slots</div>
+            <div className="node-card-sub">{Math.round(batteryPct)}% available</div>
+            <div className="node-card-bar">
+              <div className="track">
+                <span className="fill fill-teal" style={{ width: `${Math.max(batteryPct, 4)}%` }} />
+              </div>
+            </div>
+          </div>
+
+          <div className="node-card">
+            <div className="node-card-icon icon-emerald">
+              <CircleCheck size={20} />
+            </div>
+            <div className="node-card-value">
+              {activeNodes} / {nodes.length || 0}
+            </div>
+            <div className="node-card-label">Operational Status</div>
+            <div className="node-card-sub">
+              {activeNodes === nodes.length && nodes.length > 0 ? 'All nodes active' : 'Some nodes offline'}
+            </div>
+            <div className="node-card-bar">
+              <div className="track">
+                <span className="fill fill-green" style={{ width: `${Math.max(statusPct, 4)}%` }} />
+              </div>
+            </div>
+          </div>
+        </div>
+
+      <div className="nodes-panel">
+        <div className="nodes-toolbar">
+          <div className="nodes-search">
+            <Search size={17} />
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search nodes..."
+            />
+          </div>
+          <span className="nodes-count">
+            {filtered.length} of {nodes.length}
+          </span>
+          <button
+            className={`nodes-filter${statusFilter === 'active' ? ' is-on' : ''}`}
+            title={statusFilter === 'active' ? 'Showing active nodes — click to show all' : 'Filter nodes'}
+            onClick={() => setStatusFilter(statusFilter === 'active' ? 'all' : 'active')}
+          >
+            <ListFilter size={17} />
+          </button>
         </div>
 
         {loading ? (
@@ -163,13 +256,13 @@ export default function Nodes() {
           </div>
         ) : filtered.length === 0 ? (
           <EmptyState
-            icon={<IconNode size={26} />}
+            icon={<Network size={26} />}
             title={nodes.length === 0 ? 'No microgrid nodes registered' : 'No matching nodes'}
             hint="Register solar grid hubs to begin accepting energy bookings."
           />
         ) : (
-          <div className="table-wrap">
-            <table className="data-table">
+          <div className="nodes-table-wrap">
+            <table className="nodes-table">
               <thead>
                 <tr>
                   <th>Node</th>
@@ -177,76 +270,70 @@ export default function Nodes() {
                   <th>Capacity</th>
                   <th>Battery slots</th>
                   <th>Status</th>
-                  <th style={{ width: 90 }}>Actions</th>
+                  <th style={{ width: 96 }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {filtered.map((n) => {
-                  const pct = n.totalBatterySlots ? Math.round((n.availableBatterySlots / n.totalBatterySlots) * 100) : 0
+                  const slotsPct = n.totalBatterySlots
+                    ? Math.round((n.availableBatterySlots / n.totalBatterySlots) * 100)
+                    : 0
                   return (
                     <tr key={n.id}>
-                      <td>
-                        <div className="cell-strong">{n.name}</div>
-                        <div className="cell-muted" style={{ fontSize: 12 }}>
-                          {n.operatingSchedule?.join(' · ')}
+                      <td data-label="Node">
+                        <div className="node-id">
+                          <div>
+                            <div className="node-name">{n.name}</div>
+                            <div className="node-sched">{n.operatingSchedule?.join(' · ') || 'No schedule set'}</div>
+                          </div>
                         </div>
                       </td>
-                      <td>
-                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, color: 'var(--ink-soft)' }}>
-                          <IconMapPin size={14} />
+                      <td data-label="Location">
+                        <span className="node-loc">
+                          <MapPin size={14} />
                           {n.latitude?.toFixed(4)}, {n.longitude?.toFixed(4)}
                         </span>
                       </td>
-                      <td>
-                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
-                          <IconZap size={14} style={{ color: 'var(--solar-amber-dark)' }} />
+                      <td data-label="Capacity">
+                        <span className="node-cap">
+                          <Zap size={14} />
                           {n.capacityKWh} kWh
                         </span>
                       </td>
-                      <td>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-                          <IconBattery size={14} style={{ color: pct === 0 ? 'var(--alert-clay)' : 'var(--battery-green)' }} />
-                          <span style={{ fontWeight: 600 }}>{n.availableBatterySlots}</span>
-                          <span className="cell-muted">/ {n.totalBatterySlots}</span>
-                        </div>
-                        <div
-                          style={{
-                            height: 5,
-                            width: 90,
-                            background: 'var(--line)',
-                            borderRadius: 4,
-                            overflow: 'hidden',
-                            marginTop: 4,
-                          }}
-                        >
-                          <div
-                            style={{
-                              height: '100%',
-                              width: `${pct}%`,
-                              background: pct === 0 ? 'var(--alert-clay)' : 'var(--battery-green)',
-                              borderRadius: 4,
-                            }}
-                          />
+                      <td data-label="Battery slots">
+                        <div className="node-slots">
+                          <div className="node-slots-num">
+                            <Battery size={14} />
+                            {n.availableBatterySlots} <span className="node-slots-total">/ {n.totalBatterySlots}</span>
+                          </div>
+                          <div className="track">
+                            <span
+                              className={`fill fill-teal${slotsPct === 0 ? ' off' : ''}`}
+                              style={{ width: `${Math.min(Math.max(slotsPct, 0), 100)}%` }}
+                            />
+                          </div>
                         </div>
                       </td>
-                      <td>
-                        <Badge tone={n.isActive ? 'active' : 'inactive'}>
+                      <td data-label="Status">
+                        <span className={`pill ${n.isActive ? 'pill-on' : 'pill-off'}`}>
                           {n.isActive ? 'Active' : 'Deactivated'}
-                        </Badge>
+                        </span>
                       </td>
-                      <td>
-                        <button className="icon-action" title="Edit" onClick={() => openEdit(n)}>
-                          <IconEdit size={16} />
-                        </button>
-                        {n.isActive && user.role === 'Backoffice' && (
-                          <button
-                            className="icon-action warn"
-                            title="Deactivate"
-                            onClick={() => setConfirmDeactivate(n)}
-                          >
-                            <IconTrash size={16} />
+                      <td data-label="Actions">
+                        <div className="node-actions">
+                          <button className="node-action-btn" title="Edit node" onClick={() => openEdit(n)}>
+                            <Pencil size={15} />
                           </button>
-                        )}
+                          {n.isActive && user.role === 'Backoffice' && (
+                            <button
+                              className="node-action-btn danger"
+                              title="Deactivate node"
+                              onClick={() => setConfirmDeactivate(n)}
+                            >
+                              <Trash size={15} />
+                            </button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   )
@@ -308,7 +395,7 @@ export default function Nodes() {
                 <div className="col-md-6">
                   <label className="form-label-sm">
                     <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
-                      <IconMapPin size={12} /> Latitude
+                      <MapPin size={12} /> Latitude
                     </span>
                   </label>
                   <input
@@ -377,6 +464,7 @@ export default function Nodes() {
         onCancel={() => setConfirmDeactivate(null)}
         onConfirm={() => (confirmDeactivate ? handleDeactivate(confirmDeactivate) : Promise.resolve())}
       />
-    </>
+      </div>
+    </div>
   )
 }

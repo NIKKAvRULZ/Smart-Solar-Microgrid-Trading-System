@@ -1,249 +1,401 @@
-import React from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import {
-  IconUser,
-  IconNode,
-  IconBattery,
-  IconCalendar,
-  IconChevronDown,
-} from '../components/ui/Icons'
+  Network,
+  Zap,
+  Battery,
+  CircleCheck,
+  RefreshCw,
+  Users,
+  TriangleAlert,
+  ArrowUpRight,
+  ArrowDownRight,
+  Activity,
+  TrendingUp,
+} from 'lucide-react'
+import { getDashboard } from '../api/api'
+import { getErrorMessage } from '../utils/errors'
+import ReservationOverview from '../components/ReservationOverview'
 
-const KPIS = [
-  {
-    tone: 'green',
-    icon: <IconUser size={20} />,
-    label: 'Active prosumers',
-    display: '1',
-    sub: 'of 1 total',
-    spark: '#13A085',
-    points: '1,19 10,14 19,16 28,8 39,5',
+const POLL_INTERVAL = 30000
+
+const fmtCount = (n) => (n ?? 0).toLocaleString()
+const fmtKwh = (n) => (n ?? 0).toLocaleString('en-US', { maximumFractionDigits: 2 })
+const pct = (value, total) => (total > 0 ? (value / total) * 100 : 0)
+const occupiedPct = (total, available) => (total > 0 ? ((total - available) / total) * 100 : 0)
+
+const clampPct = (value) => Math.min(100, Math.max(0, Number(value) || 0))
+
+const KPI_TONES = {
+  blue: {
+    icon: 'bg-[#E7F0FB] text-[#2E6FD8]',
+    accent: 'bg-[#2E6FD8]',
+    bar: 'bg-linear-to-r from-[#6FA7F5] to-[#2E6FD8]',
+    badge: 'bg-[#E4EDFB] text-[#2E6FD8]',
   },
-  {
-    tone: 'blue',
-    icon: <IconNode size={20} />,
-    label: 'Active grid nodes',
-    display: '1',
-    sub: 'of 1 total',
-    spark: '#3B82F6',
-    points: '1,20 9,17 17,18 26,10 39,3',
+  amber: {
+    icon: 'bg-[#FDF0DC] text-[#F59A05]',
+    accent: 'bg-[#F59A05]',
+    bar: 'bg-linear-to-r from-[#FFC766] to-[#F59A05]',
+    badge: 'bg-[#FFF4E0] text-[#C77300]',
   },
-  {
-    tone: 'amber',
-    icon: <IconBattery size={20} />,
-    label: 'Battery slots available',
-    display: '4564',
-    frac: '/4567',
-    sub: 'across all nodes',
-    ring: true,
+  teal: {
+    icon: 'bg-[#DDF4EE] text-[#13A085]',
+    accent: 'bg-[#13A085]',
+    bar: 'bg-linear-to-r from-[#3AD0AF] to-[#13A085]',
+    badge: 'bg-[#E0F5EF] text-[#0E8F75]',
   },
-  {
-    tone: 'ice',
-    icon: <IconCalendar size={20} />,
-    label: 'Pending reservations',
-    display: '1',
-    sub: '1 approved',
-    spark: '#2F73E8',
-    points: '1,16 9,18 17,11 26,13 39,4',
+  emerald: {
+    icon: 'bg-[#E2F5EB] text-[#16A266]',
+    accent: 'bg-[#16A266]',
+    bar: 'bg-linear-to-r from-[#43D499] to-[#16A266]',
+    badge: 'bg-[#E5F7EE] text-[#128152]',
   },
-]
-
-const RESERVATIONS = [
-  { id: '200159502678', time: '9/21/2026, 7:20:00 PM', status: 'Pending' },
-  { id: '200159502678', time: '9/18/2026, 6:56:00 PM', status: 'Approved' },
-  { id: '200159502678', time: '9/17/2026, 1:15:00 PM', status: 'Completed' },
-]
-
-const DONUT_TOTAL = 3
-
-function MainArt() {
-  return (
-    <svg className="smg-mainbg" viewBox="0 0 1200 460" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-      <defs>
-        <radialGradient id="smgMgSun" cx="0.5" cy="0.5" r="0.5">
-          <stop offset="0%" stopColor="#FFDFA8" stopOpacity="0.8" />
-          <stop offset="60%" stopColor="#FFDFA8" stopOpacity="0.3" />
-          <stop offset="100%" stopColor="#FFDFA8" stopOpacity="0" />
-        </radialGradient>
-      </defs>
-
-      <ellipse cx="380" cy="300" rx="360" ry="190" fill="url(#smgMgSun)" opacity="0.5" />
-
-      <g fill="#FFFFFF" opacity="0.75">
-        <ellipse cx="230" cy="108" rx="100" ry="24" />
-        <ellipse cx="318" cy="92" rx="72" ry="20" />
-        <ellipse cx="740" cy="150" rx="110" ry="26" />
-        <ellipse cx="836" cy="130" rx="72" ry="20" />
-        <ellipse cx="1010" cy="96" rx="84" ry="20" />
-        <ellipse cx="1088" cy="80" rx="60" ry="16" />
-      </g>
-
-      <path d="M0 330 L150 190 300 330 Z" fill="#C8E1F5" opacity="0.5" />
-      <path d="M150 348 L330 178 510 348 Z" fill="#B6D7EF" opacity="0.46" />
-      <path d="M360 362 L560 198 750 362 Z" fill="#A9CFE9" opacity="0.42" />
-      <path d="M620 368 L805 220 985 368 Z" fill="#C3DEF4" opacity="0.44" />
-      <path d="M880 356 L1060 208 1200 322 V460 H880 Z" fill="#B8D8F1" opacity="0.4" />
-
-      <g transform="translate(720 -70) rotate(38)" opacity="0.5">
-        <rect width="250" height="10" rx="2.5" fill="#C3DDF4" />
-        <rect y="15" width="236" height="10" rx="2.5" fill="#CEE1F4" opacity="0.85" />
-        <rect y="30" width="212" height="10" rx="2.5" fill="#D7E6F5" opacity="0.75" />
-        <rect y="45" width="180" height="10" rx="2.5" fill="#DDE9F6" opacity="0.65" />
-      </g>
-    </svg>
-  )
 }
 
-function Spark({ stroke, points }) {
-  return (
-    <svg className="smg-spark" viewBox="0 0 40 22" preserveAspectRatio="none" aria-hidden="true">
-      <polyline
-        points={points}
-        fill="none"
-        stroke={stroke}
-        strokeWidth="2.2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        opacity="0.9"
-      />
-    </svg>
-  )
+function Skeleton({ className }) {
+  return <div className={`dash-skeleton ${className || ''}`} />
 }
 
-function Ring() {
-  const R = 16.5
-  const C = 2 * Math.PI * R
-  const off = C * (1 - 99.9 / 100)
+function KpiCard({ icon, tone, value, label, sub, pill, barPct, warning }) {
+  const t = KPI_TONES[tone] || KPI_TONES.blue
   return (
-    <svg className="smg-ring" viewBox="0 0 44 44" aria-hidden="true">
-      <circle cx="22" cy="22" r={R} className="smg-ring-track" />
-      <circle
-        cx="22"
-        cy="22"
-        r={R}
-        className="smg-ring-value"
-        style={{ '--rOff': `${off}px`, '--drawStart': `${C}px` }}
-        stroke="#F59B00"
-        strokeDasharray={C}
-      />
-      <text x="22" y="23" textAnchor="middle" className="smg-ring-text">
-        99.9%
-      </text>
-    </svg>
-  )
-}
-
-function StatusDonut({ value, total, color, label, cancelled }) {
-  const R = 26
-  const C = 2 * Math.PI * R
-  const frac = total ? value / total : 0
-  const off = C * (1 - frac)
-  return (
-    <div className="smg-donut">
-      <div className="smg-donut-svg">
-        <svg viewBox="0 0 72 72" aria-hidden="true">
-          <circle cx="36" cy="36" r={R} className="smg-donut-track" />
-          {frac > 0 && (
-            <circle
-              cx="36"
-              cy="36"
-              r={R}
-              className="smg-donut-arc"
-              style={{ '--arcOff': `${off}px`, '--drawStart': `${C}px` }}
-              stroke={color}
-              strokeDasharray={C}
-            />
-          )}
-        </svg>
-        <span className="smg-donut-value" style={{ color: cancelled ? '#AEB9C5' : color }}>
-          {value}
-        </span>
-        {cancelled && <span className="smg-donut-flag" />}
+    <div className="relative flex min-h-0 min-w-0 flex-col overflow-hidden rounded-2xl border border-[#DBE7F2] bg-linear-to-b from-white via-[#FBFDFF] to-[#F2F8FE] px-5 pt-5 pb-4 shadow-[0_1px_2px_rgba(13,47,74,0.04),0_22px_40px_-26px_rgba(13,47,74,0.3)]">
+      <span aria-hidden="true" className={`absolute inset-x-0 top-0 h-1 ${t.accent}`} />
+      <div className="flex items-start justify-between gap-2.5">
+        <span className={`grid h-12 w-12 shrink-0 place-items-center rounded-2xl ${t.icon}`}>{icon}</span>
+        {warning}
       </div>
-      <div className="smg-donut-label" style={cancelled ? { color: 'var(--smg-cancelled)' } : undefined}>
-        {cancelled && <span className="smg-dot" />}
-        {label}
+      <div className="mt-3 min-w-0">
+        <div className="truncate text-[27px] font-extrabold leading-tight tracking-tight text-[#0A2233]">
+          {value}
+        </div>
+        <div className="mt-1 truncate text-[15px] font-semibold text-[#23405A]">{label}</div>
+        <div className="mt-0.5 truncate text-[12.5px] font-medium text-[#6F8297]">{sub}</div>
+      </div>
+      <div className="mt-auto flex items-center gap-3 pt-3">
+        <span className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-bold ${t.badge}`}>{pill}</span>
+        <div className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-[#EBF1F6]">
+          <span
+            className={`block h-full rounded-full transition-[width] duration-500 ease-out ${t.bar}`}
+            style={{ width: `${clampPct(barPct)}%` }}
+          />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function DeltaPill({ pct: value, suffix = '%' }) {
+  const v = Number(value || 0)
+  const up = v > 0
+  const down = v < 0
+  return (
+    <span className={`dash-delta ${down ? 'down' : up ? 'up' : 'flat'}`}>
+      {down ? <ArrowDownRight size={13} /> : up ? <ArrowUpRight size={13} /> : null}
+      {up ? '+' : ''}
+      {fmtKwh(v)}
+      {suffix}
+    </span>
+  )
+}
+
+function TradingChart({ last7Days }) {
+  const days = last7Days || []
+  const maxKwh = Math.max(...days.map((d) => d.kwh || 0), 0)
+  const W = 400
+  const H = 150
+  const pad = 10
+  const innerW = W - pad * 2
+  const innerH = H - pad * 2
+  const hasData = days.some((d) => (d.kwh || 0) > 0)
+
+  if (!days.length) {
+    return (
+      <div className="dash-empty dash-empty-sm">
+        <Activity size={22} />
+        <p>No trading data available.</p>
+      </div>
+    )
+  }
+
+  if (!hasData) {
+    return (
+      <div className="dash-empty dash-empty-sm">
+        <Activity size={22} />
+        <p>No completed trades in the last 7 days yet.</p>
+        <span>Complete a reservation to see its energy here.</span>
+      </div>
+    )
+  }
+
+  const points = days.map((d, i) => {
+    const x = pad + (days.length === 1 ? innerW / 2 : (innerW * i) / (days.length - 1))
+    const y = maxKwh > 0 ? pad + innerH - (innerH * (d.kwh || 0)) / maxKwh : pad + innerH
+    return { x, y, kwh: d.kwh || 0, date: d.date }
+  })
+
+  const line = points.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ')
+  const area = `${line} L${points[points.length - 1].x.toFixed(1)},${pad + innerH} L${points[0].x.toFixed(1)},${pad + innerH} Z`
+
+  return (
+    <div className="dash-chart-wrap">
+      <svg className="dash-chart" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" aria-hidden="true">
+        <defs>
+          <linearGradient id="dashArea" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#2E6FD8" stopOpacity="0.28" />
+            <stop offset="100%" stopColor="#2E6FD8" stopOpacity="0.02" />
+          </linearGradient>
+        </defs>
+        <path d={area} fill="url(#dashArea)" />
+        <path d={line} fill="none" stroke="#2E6FD8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+        {points.map((p, i) =>
+          p.kwh > 0 ? (
+            <circle key={i} cx={p.x} cy={p.y} r="3.2" fill="#fff" stroke="#2E6FD8" strokeWidth="2" />
+          ) : null,
+        )}
+      </svg>
+      <div className="dash-chart-labels">
+        {points.map((p, i) => (
+          <span key={i}>{p.date.slice(5)}</span>
+        ))}
       </div>
     </div>
   )
 }
 
 export default function Dashboard() {
+  const [data, setData] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
+  const [error, setError] = useState(null)
+  const [lastUpdated, setLastUpdated] = useState(null)
+
+  const load = useCallback(async (skeleton = true) => {
+    if (skeleton) setLoading(true)
+    else setRefreshing(true)
+    setError(null)
+    try {
+      const res = await getDashboard()
+      setData(res.data)
+      setLastUpdated(new Date())
+    } catch (e) {
+      setError(getErrorMessage(e))
+    } finally {
+      setLoading(false)
+      setRefreshing(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    load(true)
+    const timer = setInterval(() => load(false), POLL_INTERVAL)
+    const onFocus = () => load(false)
+    window.addEventListener('focus', onFocus)
+    return () => {
+      clearInterval(timer)
+      window.removeEventListener('focus', onFocus)
+    }
+  }, [load])
+
+  const nodes = data?.nodes
+  const prosumers = data?.prosumers
+  const reservations = data?.reservations
+  const energy = data?.energy
+
   return (
-    <div className="smg-page">
-      <MainArt />
-      <div className="smg-wrap">
-        <header className="smg-heading">
-          <h1>Dashboard</h1>
-          <p>Microgrid network overview and live trading activity.</p>
+    <div className="dash-dash">
+      <div className="dash-container">
+        <header className="dash-header">
+          <div className="dash-title">
+            <h1>Dashboard</h1>
+            <p>Microgrid network overview and live trading activity.</p>
+          </div>
+          <div className="dash-header-actions">
+            {lastUpdated && (
+              <span className="dash-updated">
+                Last updated {lastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+              </span>
+            )}
+            <button
+              className={`dash-refresh ${refreshing ? 'is-spinning' : ''}`}
+              type="button"
+              title="Refresh dashboard"
+              onClick={() => load(false)}
+              disabled={refreshing}
+            >
+              <RefreshCw size={16} />
+            </button>
+          </div>
         </header>
 
-        <div className="smg-kpis">
-          {KPIS.map((k) => (
-            <div className={`smg-kpi ${k.tone}`} key={k.label}>
-              <div className="smg-kpi-icon">{k.icon}</div>
-              <div className="smg-kpi-main">
-                <div className="smg-kpi-label">{k.label}</div>
-                <div className="smg-kpi-value">
-                  {k.display}
-                  {k.frac && <em>{k.frac}</em>}
+        {error ? (
+          <div className="dash-error">
+            <TriangleAlert size={26} />
+            <h3>Could not load the dashboard</h3>
+            <p>{error}</p>
+            <button type="button" className="btn btn-solar" onClick={() => load(true)}>
+              Retry
+            </button>
+          </div>
+        ) : loading && !data ? (
+          <div className="dash-skeleton-grid">
+            <div className="kpi-grid">
+              {[0, 1, 2, 3].map((i) => (
+                <div
+                  key={i}
+                  className="flex flex-col overflow-hidden rounded-2xl border border-[#DBE7F2] bg-white px-5 pt-5 pb-4 shadow-[0_22px_40px_-26px_rgba(13,47,74,0.3)]"
+                >
+                  <div className="dash-skeleton h-12 w-12 rounded-2xl" />
+                  <div className="mt-3 space-y-2">
+                    <div className="dash-skeleton h-6 w-3/4" />
+                    <div className="dash-skeleton h-3.5 w-1/2" />
+                  </div>
+                  <div className="mt-auto flex items-center gap-3 pt-3">
+                    <div className="dash-skeleton h-5 w-2/5 rounded-full" />
+                    <div className="dash-skeleton h-1.5 w-full rounded-full" />
+                  </div>
                 </div>
-                <div className="smg-kpi-sub">{k.sub}</div>
-              </div>
-              <div className="smg-kpi-side">
-                {k.ring ? <Ring /> : <Spark stroke={k.spark} points={k.points} />}
-              </div>
+              ))}
             </div>
-          ))}
-        </div>
+            <div className="dash-grid">
+              <div className="dash-card"><Skeleton className="dash-skel-block" /></div>
+              <div className="dash-card"><Skeleton className="dash-skel-block" /></div>
+            </div>
+          </div>
+        ) : (
+          <>
+            <div className="kpi-grid">
+              <KpiCard
+                icon={<Network size={22} />}
+                tone="blue"
+                value={fmtCount(nodes?.total)}
+                label="Total Nodes"
+                sub="Active monitoring hubs"
+                pill={`${fmtCount(nodes?.active)} active`}
+                barPct={pct(nodes?.active, nodes?.total)}
+              />
+              <KpiCard
+                icon={<Zap size={22} />}
+                tone="amber"
+                value={`${fmtKwh(nodes?.capacityKWh)} kWh`}
+                label="Total Capacity"
+                sub="Across all microgrid nodes"
+                pill={`${occupiedPct(nodes?.totalBatterySlots, nodes?.availableBatterySlots).toFixed(1)}% utilized`}
+                barPct={occupiedPct(nodes?.totalBatterySlots, nodes?.availableBatterySlots)}
+              />
+              <KpiCard
+                icon={<Battery size={22} />}
+                tone="teal"
+                value={`${fmtCount(nodes?.availableBatterySlots)} / ${fmtCount(nodes?.totalBatterySlots)}`}
+                label="Available Battery Slots"
+                sub={`${nodes?.availabilityPct?.toFixed(2)}% available`}
+                pill="Free slots"
+                barPct={nodes?.availabilityPct}
+              />
+              <KpiCard
+                icon={<CircleCheck size={22} />}
+                tone="emerald"
+                value={`${fmtCount(nodes?.active)} / ${fmtCount(nodes?.total)}`}
+                label="Operational Status"
+                sub={`${fmtCount(nodes?.offline)} node${nodes?.offline === 1 ? '' : 's'} offline`}
+                pill={nodes?.offline > 0 ? 'Degraded' : 'Operational'}
+                barPct={pct(nodes?.active, nodes?.total)}
+                warning={
+                  nodes?.offline > 0 ? (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-[#FDF0DA] px-2 py-1 text-[11px] font-extrabold text-[#B87104]">
+                      <TriangleAlert size={13} /> {fmtCount(nodes?.offline)} offline
+                    </span>
+                  ) : null
+                }
+              />
+            </div>
 
-        <div className="smg-grid">
-          <section className="smg-card">
-            <div className="smg-card-head">
-              <h3>Reservation status</h3>
-              <button className="smg-dd" type="button">
-                All time
-                <IconChevronDown size={13} />
-              </button>
-            </div>
-            <div className="smg-donuts">
-              <StatusDonut value={1} total={DONUT_TOTAL} color="#F59E0B" label="Pending" />
-              <StatusDonut value={1} total={DONUT_TOTAL} color="#2563EB" label="Approved" />
-              <StatusDonut value={1} total={DONUT_TOTAL} color="#059669" label="Completed" />
-              <StatusDonut value={0} total={DONUT_TOTAL} color="#E3E9F1" label="Cancelled" cancelled />
-            </div>
-          </section>
+            <div className="dash-grid">
+              <ReservationOverview />
 
-          <section className="smg-card">
-            <div className="smg-card-head">
-              <h3>Latest reservations</h3>
-              <button className="smg-dd" type="button">
-                Most recent
-                <IconChevronDown size={13} />
-              </button>
+              <section className="dash-card">
+                <div className="dash-card-head">
+                  <h3>Latest reservations</h3>
+                  <span className="dash-card-note">Most recent</span>
+                </div>
+                {reservations?.latest?.length ? (
+                  <div className="dash-table-wrap">
+                    <table className="dash-table">
+                      <thead>
+                        <tr>
+                          <th>Reservation ID</th>
+                          <th>Date &amp; Time</th>
+                          <th>Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {reservations.latest.map((r) => {
+                          const status = r.status || 'Pending'
+                          const t = new Date(r.scheduledDateTime)
+                          return (
+                            <tr key={r.id}>
+                              <td className="dash-id">{r.id}</td>
+                              <td className="dash-time">
+                                {t.toLocaleDateString()}
+                                <span>{t.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                              </td>
+                              <td>
+                                <span className={`dash-badge dash-badge-${status.toLowerCase()}`}>{status}</span>
+                              </td>
+                            </tr>
+                          )
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <div className="dash-empty">
+                    <CircleCheck size={22} />
+                    <p>No reservations yet.</p>
+                  </div>
+                )}
+              </section>
             </div>
-            <div className="smg-table-wrap">
-              <table className="smg-table">
-                <thead>
-                  <tr>
-                    <th>Reservation ID</th>
-                    <th>Date &amp; Time</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {RESERVATIONS.map((r, i) => (
-                    <tr key={i}>
-                      <td className="smg-id">{r.id}</td>
-                      <td className="smg-time">{r.time}</td>
-                      <td>
-                        <span className={`smg-badge ${r.status.toLowerCase()}`}>{r.status}</span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+
+            <div className="dash-bottom">
+              <section className="dash-card">
+                <div className="dash-card-head">
+                  <h3>Energy traded today</h3>
+                  <span className="dash-card-icon amber"><TrendingUp size={15} /></span>
+                </div>
+                <div className="dash-bottom-value">{fmtKwh(energy?.todayKWh)} <small>kWh</small></div>
+                <div className="dash-bottom-sub">
+                  vs yesterday&nbsp;·&nbsp;{fmtKwh(energy?.yesterdayKWh)} kWh
+                </div>
+                <div className="dash-bottom-footer">
+                  <DeltaPill pct={energy?.todayDeltaPct} />
+                  <span className="dash-bottom-hint">completed reservations</span>
+                </div>
+              </section>
+
+              <section className="dash-card">
+                <div className="dash-card-head">
+                  <h3>Active prosumers</h3>
+                  <span className="dash-card-icon green"><Users size={15} /></span>
+                </div>
+                <div className="dash-bottom-value">{fmtCount(prosumers?.active)}</div>
+                <div className="dash-bottom-sub">of {fmtCount(prosumers?.total)} registered prosumers</div>
+                <div className="dash-bottom-footer">
+                  <span className="dash-pct">{fmtKwh(prosumers?.activePct)}%</span>
+                  <span className="dash-bottom-hint">account active</span>
+                </div>
+              </section>
+
+              <section className="dash-card dash-card-chart">
+                <div className="dash-card-head">
+                  <h3>Trading activity</h3>
+                  <span className="dash-card-note">Last 7 days · kWh</span>
+                </div>
+                <TradingChart last7Days={energy?.last7Days} />
+              </section>
             </div>
-          </section>
-        </div>
+          </>
+        )}
       </div>
     </div>
   )
