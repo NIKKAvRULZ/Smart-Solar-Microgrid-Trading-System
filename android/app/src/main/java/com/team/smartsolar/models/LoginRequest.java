@@ -1,3 +1,10 @@
+// -----------------------------------------------------------------------------
+// File: LoginRequest.java
+// Author: Nithika Perera
+// Purpose: DTO for securely transmitting Prosumer credentials (NIC and password)
+// to the authentication endpoint of the central service.
+// -----------------------------------------------------------------------------
+
 package com.team.smartsolar.models;
 
 import com.google.gson.annotations.SerializedName;

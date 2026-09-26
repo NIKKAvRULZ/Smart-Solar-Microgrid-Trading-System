@@ -1,3 +1,10 @@
+// -----------------------------------------------------------------------------
+// File: DatabaseHelper.java
+// Author: Nithika Perera
+// Purpose: Implements SQLiteOpenHelper for local session and cache persistence,
+// fulfilling the pure native Android local storage requirement without using Room.
+// -----------------------------------------------------------------------------
+
 package com.team.smartsolar.database;
 
 import android.content.ContentValues;

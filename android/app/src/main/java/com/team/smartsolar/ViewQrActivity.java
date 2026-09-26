@@ -1,3 +1,10 @@
+// -----------------------------------------------------------------------------
+// File: ViewQrActivity.java
+// Author: Nithika Perera
+// Purpose: Renders the secure dispatch QR code for approved energy reservations.
+// Generates the code locally using ZXing based on the payload received from the API.
+// -----------------------------------------------------------------------------
+
 package com.team.smartsolar;
 
 import android.graphics.Bitmap;

@@ -1,3 +1,11 @@
+// -----------------------------------------------------------------------------
+// File: StationMapActivity.java
+// Author: Nithika Perera
+// Purpose: Prosumer Grid Explorer map. Fetches microgrid nodes from the API
+// (or local SQLite cache) and renders them on Google Maps. Includes a bottom
+// sheet to view capacity and jump straight into booking.
+// -----------------------------------------------------------------------------
+
 package com.team.smartsolar;
 
 import android.content.Intent;

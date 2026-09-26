@@ -1,3 +1,11 @@
+// -----------------------------------------------------------------------------
+// File: ProfileActivity.java
+// Author: Nithika Perera
+// Purpose: Allows Prosumers to view and update their profile details. Sends
+// updates to the API and syncs with the local SQLite cache for offline access.
+// Includes functionality to request account deactivation.
+// -----------------------------------------------------------------------------
+
 package com.team.smartsolar;
 
 import android.content.Intent;

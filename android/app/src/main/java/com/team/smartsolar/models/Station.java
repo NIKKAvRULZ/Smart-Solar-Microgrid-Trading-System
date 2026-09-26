@@ -1,3 +1,10 @@
+// -----------------------------------------------------------------------------
+// File: Station.java
+// Author: Nithika Perera
+// Purpose: Lightweight DTO representing basic station telemetry data, mapped to
+// the server's JSON contract.
+// -----------------------------------------------------------------------------
+
 package com.team.smartsolar.models;
 
 import com.google.gson.annotations.SerializedName;

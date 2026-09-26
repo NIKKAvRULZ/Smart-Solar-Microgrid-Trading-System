@@ -1,3 +1,10 @@
+// -----------------------------------------------------------------------------
+// File: LoginActivity.java
+// Author: Nithika Perera
+// Purpose: Handles Prosumer authentication, capturing credentials and storing
+// the issued JWT token securely in the local SQLite database for session persistence.
+// -----------------------------------------------------------------------------
+
 package com.team.smartsolar;
 
 import android.content.Intent;

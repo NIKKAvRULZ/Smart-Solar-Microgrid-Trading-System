@@ -1,3 +1,10 @@
+// -----------------------------------------------------------------------------
+// File: DashboardActivity.java
+// Author: Nithika Perera
+// Purpose: Prosumer dashboard displaying dynamic counts from the API and a
+// preview map of nearby grid nodes. Includes SQLite fallback for offline mode.
+// -----------------------------------------------------------------------------
+
 package com.team.smartsolar;
 
 import android.content.Intent;

@@ -1,3 +1,10 @@
+// -----------------------------------------------------------------------------
+// File: SolarApi.java
+// Author: Nithika Perera
+// Purpose: Retrofit interface defining all RESTful HTTP calls to the central
+// C# Web API. Serves as the sole data conduit, ensuring the app remains a thin client.
+// -----------------------------------------------------------------------------
+
 package com.team.smartsolar.network;
 
 import com.team.smartsolar.models.CreateReservationRequest;

@@ -1,3 +1,10 @@
+// -----------------------------------------------------------------------------
+// File: RegisterActivity.java
+// Author: Nithika Perera
+// Purpose: Handles the Prosumer account creation process. Keys the user to their
+// NIC as requested by the assignment specification.
+// -----------------------------------------------------------------------------
+
 package com.team.smartsolar;
 
 import android.content.Intent;

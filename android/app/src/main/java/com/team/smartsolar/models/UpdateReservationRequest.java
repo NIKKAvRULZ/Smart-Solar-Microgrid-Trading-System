@@ -1,3 +1,10 @@
+// -----------------------------------------------------------------------------
+// File: UpdateReservationRequest.java
+// Author: Nithika Perera
+// Purpose: DTO packaging modified reservation details (date, time, energy) to
+// send to the API while complying with the 12-hour modification rule.
+// -----------------------------------------------------------------------------
+
 package com.team.smartsolar.models;
 
 import com.google.gson.annotations.SerializedName;

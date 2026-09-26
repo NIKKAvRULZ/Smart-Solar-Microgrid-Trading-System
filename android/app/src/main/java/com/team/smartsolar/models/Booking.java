@@ -1,3 +1,10 @@
+// -----------------------------------------------------------------------------
+// File: Booking.java
+// Author: Nithika Perera
+// Purpose: Local UI model used to populate the custom RecyclerView adapter in
+// the My Bookings history and filtering screen.
+// -----------------------------------------------------------------------------
+
 package com.team.smartsolar.models;
 
 public class Booking {

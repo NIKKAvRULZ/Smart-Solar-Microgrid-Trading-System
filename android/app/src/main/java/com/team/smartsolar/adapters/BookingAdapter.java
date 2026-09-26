@@ -1,3 +1,10 @@
+// -----------------------------------------------------------------------------
+// File: BookingAdapter.java
+// Author: Nithika Perera
+// Purpose: Binds Prosumer reservation data to the RecyclerView in the MyBookings
+// activity. Handles click routing to the QR generator or modification screens.
+// -----------------------------------------------------------------------------
+
 package com.team.smartsolar.adapters;
 
 import android.view.LayoutInflater;

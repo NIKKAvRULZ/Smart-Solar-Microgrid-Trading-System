@@ -1,3 +1,10 @@
+// -----------------------------------------------------------------------------
+// File: RetrofitClient.java
+// Author: Nithika Perera
+// Purpose: Configures and provides the singleton Retrofit instance used to handle
+// all network communication between the Android client and the C# Web API.
+// -----------------------------------------------------------------------------
+
 package com.team.smartsolar.network;
 
 import java.security.cert.CertificateException;
