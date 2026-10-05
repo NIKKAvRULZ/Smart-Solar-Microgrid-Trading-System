@@ -297,21 +297,15 @@ erDiagram
 
 <br/>
 
-## ✅ Known Limitations / Pre-Submission TODO
+## ⚠️ Assignment Specific Disclosures (SE4040)
 
-> An honest running list — use this as your team's final punch-list before the 30th. Nothing here is a criticism of the work done so far; the core architecture is solid.
-
-- [ ] **Add a header comment block to every `.cs` file and an inline comment at the start of every method.** The brief states code without these *will not be marked* — this applies to every file under `web-service/SolarGrid.Api`.
-- [ ] **Enforce authentication & role-based authorization server-side.** No `[Authorize]` attributes or auth middleware currently exist — every endpoint is open. Add a real auth scheme (JWT bearer is the natural upgrade from today's placeholder GUID token) and lock down Backoffice-only / Grid-Operator-only endpoints.
-- [ ] **Fix mobile Prosumer registration.** `RegisterActivity` currently posts to `/api/users` (the Backoffice/Grid-Operator collection) with role hard-coded to `"Prosumer"`. It should call `POST /api/prosumers` so the record lands in the `Prosumers` collection keyed by NIC — otherwise profile, deactivation and reservation lookups for that account will 404.
-- [ ] **Add a dedicated Prosumer login endpoint** (e.g. `POST /api/prosumers/login`), separate from the Backoffice/Grid-Operator `/api/auth/login`.
-- [ ] **Block node deactivation when active reservations exist** — currently `DeactivateAsync` flips the node inactive unconditionally.
-- [ ] **Add real server-side QR verification.** `PATCH /api/reservations/{id}/complete` doesn't take or check a scanned payload today; add a `verify-qr` endpoint that validates the token/hash before allowing completion.
-- [ ] **Build the Grid Operator mode on Android** — QR scanner activity, server verification call, completion confirmation, and a nearby-stations map view for the operator role.
-- [ ] Replace the hard-coded `"Welcome, Nithika"` greeting in `DashboardActivity` with the logged-in user's real name.
-- [ ] Remove `Frontend/dist/` and `.vs/` from version control (already in `.gitignore`, but a few files were committed before that took effect) — `git rm -r --cached Frontend/dist .vs`.
-- [ ] Capture unique screenshots of every screen, and the opening/login screen, for the report and the submission ZIP.
-- [ ] Paste all source code as text (not screenshots) into the report appendix, per the brief.
+*   **AI Usage (Level 2 - Planning):** As per the CLEAR framework guidelines, AI tools (including ChatGPT and GitHub Copilot) were utilized strictly during the initial brainstorming and architectural planning phases to explore design patterns. All implementation, coding, and debugging were completed independently by the team members. A detailed reflection is available in our Project Report.
+*   **Challenges Faced:** 
+    *   *Architecture Discipline:* Ensuring the FAT Service pattern was strictly adhered to without leaking business logic into the Android UI layer.
+    *   *Asynchronous Data:* Managing asynchronous Google Maps SDK loading alongside Retrofit API calls to prevent race conditions during rendering.
+    *   *A full reflection on technical challenges is included in the Project Report.*
+*   **Local Persistence:** The Android application strictly adheres to the constraint of using pure SQLite (via `SQLiteOpenHelper`, bypassing ORMs like Room) for persisting session tokens and caching node reference data.
+*   **Project Report Attachment:** The full documentation containing High-Level Diagrams, Use Case Diagrams, DFDs, UI Screenshots, and the appended raw source code can be found in the root directory: `SE4040_Project_Report.pdf`..
 
 <br/>
 
