@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------------
+// File: UsersController.cs
+// Author: Gunasena R. K. R. M. S. K.
+// Purpose: System implementation for UsersController
+// -----------------------------------------------------------------------------
+
 using Microsoft.AspNetCore.Mvc;
 using SolarGrid.Api.Models;
 using SolarGrid.Api.Services;
@@ -16,12 +22,14 @@ public class UsersController : ControllerBase
     }
 
     [HttpGet]
+    // Inline comment: Expression body method execution
     public async Task<IActionResult> GetAll() =>
         Ok(await _userService.GetAllAsync());
 
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateUserRequest request)
     {
+        // Inline comment: Method execution begins here.
         var user = await _userService.CreateAsync(request);
         if (user == null)
             return BadRequest(new { message = "Username is already taken." });
@@ -32,6 +40,7 @@ public class UsersController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(string id, [FromBody] UpdateUserRequest request)
     {
+        // Inline comment: Method execution begins here.
         var user = await _userService.UpdateAsync(id, request);
         if (user == null)
             return NotFound(new { message = "User not found." });
@@ -42,6 +51,7 @@ public class UsersController : ControllerBase
     [HttpPatch("{id}/deactivate")]
     public async Task<IActionResult> Deactivate(string id)
     {
+        // Inline comment: Method execution begins here.
         var success = await _userService.DeactivateAsync(id);
         if (!success)
             return NotFound(new { message = "User not found." });

@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------------
+// File: ReservationService.cs
+// Author: Perera W. A. N. I.
+// Purpose: System implementation for ReservationService
+// -----------------------------------------------------------------------------
+
 using System.Security.Cryptography;
 using System.Text;
 using SolarGrid.Api.Models;
@@ -22,14 +28,17 @@ public class ReservationService
         _reservationRepository = reservationRepository;
     }
 
+    // Inline comment: Expression body method execution
     public async Task<List<Reservation>> GetAllAsync() =>
         await _reservationRepository.GetAllAsync();
 
+    // Inline comment: Expression body method execution
     public async Task<List<Reservation>> GetByProsumerNicAsync(string nic) =>
         await _reservationRepository.GetByProsumerNicAsync(nic);
 
     public async Task<Reservation> CreateAsync(CreateReservationRequest request)
     {
+        // Inline comment: Method execution begins here.
         if (request.ScheduledDateTime < DateTime.UtcNow ||
             request.ScheduledDateTime > DateTime.UtcNow.AddDays(7))
         {
@@ -43,7 +52,7 @@ public class ReservationService
             ScheduledDateTime = request.ScheduledDateTime,
             DurationMinutes = request.DurationMinutes,
             EnergyAmount = request.EnergyAmount, // <-- ADDED FIELD
-            Status = "Pending",
+            Status = ReservationStatus.Pending,
             CreatedAt = DateTime.UtcNow
         };
 
@@ -53,10 +62,11 @@ public class ReservationService
 
     public async Task<Reservation?> UpdateAsync(string id, UpdateReservationRequest request)
     {
+        // Inline comment: Method execution begins here.
         var reservation = await _reservationRepository.GetByIdAsync(id);
         if (reservation == null) return null;
 
-        if (reservation.Status is "Completed" or "Cancelled")
+        if (reservation.Status is ReservationStatus.Completed or ReservationStatus.Cancelled)
             throw new ArgumentException("Cannot modify a completed or cancelled reservation.");
 
         if (DateTime.UtcNow > reservation.ScheduledDateTime.AddHours(-12))
@@ -79,16 +89,17 @@ public class ReservationService
 
     public async Task<bool> CancelAsync(string id)
     {
+        // Inline comment: Method execution begins here.
         var reservation = await _reservationRepository.GetByIdAsync(id);
         if (reservation == null) return false;
 
-        if (reservation.Status is "Completed" or "Cancelled")
+        if (reservation.Status is ReservationStatus.Completed or ReservationStatus.Cancelled)
             throw new ArgumentException("This reservation is already completed or cancelled.");
 
         if (DateTime.UtcNow > reservation.ScheduledDateTime.AddHours(-12))
             throw new ArgumentException("Reservations can only be cancelled at least 12 hours before the scheduled time.");
 
-        reservation.Status = "Cancelled";
+        reservation.Status = ReservationStatus.Cancelled;
         reservation.UpdatedAt = DateTime.UtcNow;
 
         await _reservationRepository.UpdateAsync(id, reservation);
@@ -101,13 +112,14 @@ public class ReservationService
     /// </summary>
     public async Task<Reservation?> ApproveAsync(string id)
     {
+        // Inline comment: Method execution begins here.
         var reservation = await _reservationRepository.GetByIdAsync(id);
         if (reservation == null) return null;
 
-        if (reservation.Status != "Pending")
+        if (reservation.Status != ReservationStatus.Pending)
             throw new ArgumentException("Only Pending reservations can be approved.");
 
-        reservation.Status = "Approved";
+        reservation.Status = ReservationStatus.Approved;
         reservation.QrCode = GenerateQrCode($"{reservation.ProsumerNic}-{reservation.NodeId}-{reservation.ScheduledDateTime:O}");
         reservation.UpdatedAt = DateTime.UtcNow;
 
@@ -117,13 +129,14 @@ public class ReservationService
 
     public async Task<Reservation?> CompleteAsync(string id)
     {
+        // Inline comment: Method execution begins here.
         var reservation = await _reservationRepository.GetByIdAsync(id);
         if (reservation == null) return null;
 
-        if (reservation.Status != "Approved")
+        if (reservation.Status != ReservationStatus.Approved)
             throw new ArgumentException("Only Approved reservations can be completed.");
 
-        reservation.Status = "Completed";
+        reservation.Status = ReservationStatus.Completed;
         reservation.UpdatedAt = DateTime.UtcNow;
 
         await _reservationRepository.UpdateAsync(id, reservation);
@@ -133,6 +146,7 @@ public class ReservationService
     /// <summary>Returns a short uppercase hex string suitable for display as a QR code value.</summary>
     private static string GenerateQrCode(string input)
     {
+        // Inline comment: Method execution begins here.
         using var sha256 = SHA256.Create();
         var bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(input));
         return Convert.ToHexString(bytes)[..12];

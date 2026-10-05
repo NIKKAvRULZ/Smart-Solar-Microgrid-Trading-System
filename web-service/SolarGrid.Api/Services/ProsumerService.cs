@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------------
+// File: ProsumerService.cs
+// Author: Perera W. A. N. I.
+// Purpose: System implementation for ProsumerService
+// -----------------------------------------------------------------------------
+
 using System.Security.Cryptography;
 using System.Text;
 using SolarGrid.Api.Models;
@@ -18,14 +24,17 @@ public class ProsumerService
         _prosumerRepository = prosumerRepository;
     }
 
+    // Inline comment: Expression body method execution
     public async Task<List<Prosumer>> GetAllAsync() =>
         await _prosumerRepository.GetAllAsync();
+    // Inline comment: Expression body method execution
     public async Task<Prosumer?> GetByNicAsync(string nic) =>
         await _prosumerRepository.GetByNicAsync(nic);
 
     /// <summary>Returns null if a prosumer with that NIC already exists.</summary>
     public async Task<Prosumer?> CreateAsync(CreateProsumerRequest request)
     {
+        // Inline comment: Method execution begins here.
         var existing = await _prosumerRepository.GetByNicAsync(request.Nic);
         if (existing != null) return null;
 
@@ -46,6 +55,7 @@ public class ProsumerService
 
     public async Task<Prosumer?> UpdateAsync(string nic, UpdateProsumerRequest request)
     {
+        // Inline comment: Method execution begins here.
         var prosumer = await _prosumerRepository.GetByNicAsync(nic);
         if (prosumer == null) return null;
 
@@ -60,6 +70,7 @@ public class ProsumerService
 
     public async Task<bool> DeactivateAsync(string nic)
     {
+        // Inline comment: Method execution begins here.
         var prosumer = await _prosumerRepository.GetByNicAsync(nic);
         if (prosumer == null) return false;
 
@@ -71,6 +82,7 @@ public class ProsumerService
     /// <summary>Reactivation is a Backoffice-only action.</summary>
     public async Task<bool> ReactivateAsync(string nic)
     {
+        // Inline comment: Method execution begins here.
         var prosumer = await _prosumerRepository.GetByNicAsync(nic);
         if (prosumer == null) return false;
 
@@ -81,6 +93,7 @@ public class ProsumerService
 
     private static string HashPassword(string password)
     {
+        // Inline comment: Method execution begins here.
         using var sha256 = SHA256.Create();
         var bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
         return Convert.ToBase64String(bytes);

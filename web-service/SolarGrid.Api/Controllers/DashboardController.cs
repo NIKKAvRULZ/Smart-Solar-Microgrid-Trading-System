@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------------
+// File: DashboardController.cs
+// Author: Gunasena R. K. R. M. S. K.
+// Purpose: System implementation for DashboardController
+// -----------------------------------------------------------------------------
+
 using Microsoft.AspNetCore.Mvc;
 using SolarGrid.Api.Services;
 
@@ -22,6 +28,7 @@ public class DashboardController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> Get([FromQuery] string period = "all")
     {
+        // Inline comment: Method execution begins here.
         var normalized = period.ToLowerInvariant() switch
         {
             "today" => "today",

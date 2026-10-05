@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------------
+// File: AuthController.cs
+// Author: Gunasena R. K. R. M. S. K.
+// Purpose: System implementation for AuthController
+// -----------------------------------------------------------------------------
+
 using Microsoft.AspNetCore.Mvc;
 using SolarGrid.Api.Models;
 using SolarGrid.Api.Services;
@@ -19,6 +25,7 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
+        // Inline comment: Method execution begins here.
         var response = await _authService.LoginAsync(request);
         if (response == null)
             return Unauthorized(new { message = "Invalid credentials or account is deactivated." });

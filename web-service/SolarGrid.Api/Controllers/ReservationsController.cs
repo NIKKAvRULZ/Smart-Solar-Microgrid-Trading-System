@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------------
+// File: ReservationsController.cs
+// Author: Gunasena R. K. R. M. S. K.
+// Purpose: System implementation for ReservationsController
+// -----------------------------------------------------------------------------
+
 using Microsoft.AspNetCore.Mvc;
 using SolarGrid.Api.Models;
 using SolarGrid.Api.Services;
@@ -16,16 +22,19 @@ public class ReservationsController : ControllerBase
     }
 
     [HttpGet]
+    // Inline comment: Expression body method execution
     public async Task<IActionResult> GetAll() =>
         Ok(await _reservationService.GetAllAsync());
 
     [HttpGet("prosumer/{nic}")]
+    // Inline comment: Expression body method execution
     public async Task<IActionResult> GetByProsumer(string nic) =>
         Ok(await _reservationService.GetByProsumerNicAsync(nic));
 
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateReservationRequest request)
     {
+        // Inline comment: Method execution begins here.
         try
         {
             var reservation = await _reservationService.CreateAsync(request);
@@ -40,6 +49,7 @@ public class ReservationsController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(string id, [FromBody] UpdateReservationRequest request)
     {
+        // Inline comment: Method execution begins here.
         try
         {
             var reservation = await _reservationService.UpdateAsync(id, request);
@@ -57,6 +67,7 @@ public class ReservationsController : ControllerBase
     [HttpPatch("{id}/cancel")]
     public async Task<IActionResult> Cancel(string id)
     {
+        // Inline comment: Method execution begins here.
         try
         {
             var success = await _reservationService.CancelAsync(id);
@@ -74,6 +85,7 @@ public class ReservationsController : ControllerBase
     [HttpPatch("{id}/approve")]
     public async Task<IActionResult> Approve(string id)
     {
+        // Inline comment: Method execution begins here.
         try
         {
             var reservation = await _reservationService.ApproveAsync(id);
@@ -91,6 +103,7 @@ public class ReservationsController : ControllerBase
     [HttpPatch("{id}/complete")]
     public async Task<IActionResult> Complete(string id)
     {
+        // Inline comment: Method execution begins here.
         try
         {
             var reservation = await _reservationService.CompleteAsync(id);

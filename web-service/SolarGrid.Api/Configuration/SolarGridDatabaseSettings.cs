@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------------
+// File: SolarGridDatabaseSettings.cs
+// Author: Gunasena R. K. R. M. S. K.
+// Purpose: System implementation for SolarGridDatabaseSettings
+// -----------------------------------------------------------------------------
+
 namespace SolarGrid.Api.Configuration;
 
 public class SolarGridDatabaseSettings

@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------------
+// File: DashboardDTOs.cs
+// Author: Gunasena R. K. R. M. S. K.
+// Purpose: System implementation for DashboardDTOs
+// -----------------------------------------------------------------------------
+
 using System.Text.Json.Serialization;
 
 namespace SolarGrid.Api.Models;
@@ -99,7 +105,8 @@ public class DashboardLatestReservation
     public DateTime ScheduledDateTime { get; set; }
 
     [JsonPropertyName("status")]
-    public string Status { get; set; } = "Pending";
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public ReservationStatus Status { get; set; } = ReservationStatus.Pending;
 }
 
 public class DashboardEnergyStats

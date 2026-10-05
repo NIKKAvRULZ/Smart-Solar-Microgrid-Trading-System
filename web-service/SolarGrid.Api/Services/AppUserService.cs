@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------------
+// File: AppUserService.cs
+// Author: Perera W. A. N. I.
+// Purpose: System implementation for AppUserService
+// -----------------------------------------------------------------------------
+
 using System.Security.Cryptography;
 using System.Text;
 using SolarGrid.Api.Models;
@@ -20,12 +26,14 @@ public class AppUserService
         _prosumerRepository = prosumerRepository;
     }
 
+    // Inline comment: Expression body method execution
     public async Task<List<AppUser>> GetAllAsync() =>
         await _userRepository.GetAllAsync();
 
     /// <summary>Returns null if the username is already taken.</summary>
     public async Task<AppUser?> CreateAsync(CreateUserRequest request)
     {
+        // Inline comment: Method execution begins here.
         var existing = await _userRepository.GetByUsernameAsync(request.Username);
         if (existing != null) return null;
 
@@ -42,7 +50,7 @@ public class AppUserService
         await _userRepository.CreateAsync(user);
 
         // Auto-sync: Create a matching profile in the Prosumers collection
-        if (string.Equals(request.Role, "Prosumer", StringComparison.OrdinalIgnoreCase))
+        if (request.Role == UserRole.Prosumer)
         {
             var existingProsumer = await _prosumerRepository.GetByNicAsync(request.Username);
             if (existingProsumer == null)
@@ -67,6 +75,7 @@ public class AppUserService
     /// <summary>Returns null if the user id is not found.</summary>
     public async Task<AppUser?> UpdateAsync(string id, UpdateUserRequest request)
     {
+        // Inline comment: Method execution begins here.
         var user = await _userRepository.GetByIdAsync(id);
         if (user == null) return null;
 
@@ -81,6 +90,7 @@ public class AppUserService
 
     public async Task<bool> DeactivateAsync(string id)
     {
+        // Inline comment: Method execution begins here.
         var user = await _userRepository.GetByIdAsync(id);
         if (user == null) return false;
 
@@ -91,6 +101,7 @@ public class AppUserService
 
     private static string HashPassword(string password)
     {
+        // Inline comment: Method execution begins here.
         using var sha256 = SHA256.Create();
         var bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
         return Convert.ToBase64String(bytes);
