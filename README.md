@@ -326,6 +326,6 @@ Built for **SE4040 — Enterprise Application Development**, BSc (Hons) IT (Soft
 
 **Made with ☀️ by Nithika, Hiruni, Desima & Sasmitha**
 
-<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=14&duration=3000&pause=1000&color=94A3B8&center=true&vCenter=true&width=500&lines=Deadline%3A+30+September+2026%2C+11%3A59+PM;Thin+clients.+FAT+service.+One+source+of+truth." alt="footer" />
+<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=14&duration=3000&pause=1000&color=94A3B8&center=true&vCenter=true&width=500&lines=Deadline%3A+05+October+2026%2C+11%3A59+PM;Thin+clients.+FAT+service.+One+source+of+truth." alt="footer" />
 
 </div>
