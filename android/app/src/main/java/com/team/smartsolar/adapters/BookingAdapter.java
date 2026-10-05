@@ -48,6 +48,7 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingV
                 intent.putExtra("STATION", booking.getStationName());
                 intent.putExtra("DATE", booking.getDate() + " " + booking.getTime());
                 intent.putExtra("ENERGY", booking.getEnergyAmount());
+                intent.putExtra("BOOKING_ID", booking.getId());
                 v.getContext().startActivity(intent);
 
             } else if (booking.getStatus().equalsIgnoreCase("Pending")) {
