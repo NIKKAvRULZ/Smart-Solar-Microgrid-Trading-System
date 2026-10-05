@@ -4,6 +4,8 @@
 // Purpose: System implementation for UserDTOs
 // -----------------------------------------------------------------------------
 
+using System.Text.Json.Serialization;
+
 namespace SolarGrid.Api.Models;
 
 public class LoginRequest
@@ -17,6 +19,8 @@ public class LoginResponse
     public string Token { get; set; } = null!;
     public string Username { get; set; } = null!;
     public string FullName { get; set; } = null!;
+
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public UserRole Role { get; set; }
 }
 
@@ -26,6 +30,8 @@ public class CreateUserRequest
     public string Password { get; set; } = null!;
     public string FullName { get; set; } = null!;
     public string Email { get; set; } = null!;
+
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public UserRole Role { get; set; } = UserRole.GridOperator;
 }
 
@@ -33,6 +39,8 @@ public class UpdateUserRequest
 {
     public string FullName { get; set; } = null!;
     public string Email { get; set; } = null!;
+
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public UserRole Role { get; set; }
     public bool IsActive { get; set; } = true;
 }
