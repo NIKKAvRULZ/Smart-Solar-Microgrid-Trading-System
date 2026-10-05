@@ -6,6 +6,7 @@
 import React from 'react'
 import { Navigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { canAccessRoute } from '../utils/auth'
 
 export default function ProtectedRoute({ children, allowedRoles }) {
   const { user } = useAuth()
@@ -14,9 +15,7 @@ export default function ProtectedRoute({ children, allowedRoles }) {
     return <Navigate to="/login" replace />
   }
 
-  // Inline comment: if allowedRoles is provided, block access for roles
-  // outside that list (e.g. Grid Operators viewing User Management).
-  if (allowedRoles && !allowedRoles.includes(user.role)) {
+  if (!canAccessRoute(user, allowedRoles)) {
     return <Navigate to="/dashboard" replace />
   }
 
