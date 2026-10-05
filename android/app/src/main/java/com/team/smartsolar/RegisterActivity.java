@@ -26,7 +26,7 @@ import retrofit2.Response;
 
 public class RegisterActivity extends AppCompatActivity {
 
-    private EditText inputNic, inputName, inputEmail, inputPassword;
+    private EditText inputNic, inputName, inputEmail, inputPhone, inputAddress, inputPassword;
     private Button btnRegister;
     private TextView txtGoToLogin;
 
@@ -38,6 +38,8 @@ public class RegisterActivity extends AppCompatActivity {
         inputNic = findViewById(R.id.inputNic);
         inputName = findViewById(R.id.inputName);
         inputEmail = findViewById(R.id.inputEmail);
+        inputPhone = findViewById(R.id.inputPhone);
+        inputAddress = findViewById(R.id.inputAddress);
         inputPassword = findViewById(R.id.inputPassword);
         btnRegister = findViewById(R.id.btnRegister);
         txtGoToLogin = findViewById(R.id.txtGoToLogin);
@@ -63,9 +65,11 @@ public class RegisterActivity extends AppCompatActivity {
         String nic = inputNic.getText().toString().trim();
         String name = inputName.getText().toString().trim();
         String email = inputEmail.getText().toString().trim();
+        String phone = inputPhone.getText().toString().trim();
+        String address = inputAddress.getText().toString().trim();
         String password = inputPassword.getText().toString().trim();
 
-        if (nic.isEmpty() || name.isEmpty() || email.isEmpty() || password.isEmpty()) {
+        if (nic.isEmpty() || name.isEmpty() || email.isEmpty() || phone.isEmpty() || address.isEmpty() || password.isEmpty()) {
             Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -76,8 +80,7 @@ public class RegisterActivity extends AppCompatActivity {
         }
 
         // 1. Package the variables into the JSON model expected by the backend
-        // We map NIC to username, and hardcode the role as "Prosumer"
-        RegisterRequest request = new RegisterRequest(nic, password, name, email, "Prosumer");
+        RegisterRequest request = new RegisterRequest(nic, password, name, email, phone, address);
 
         // 2. Send to C# API endpoint using Retrofit
         SolarApi api = RetrofitClient.getClient().create(SolarApi.class);

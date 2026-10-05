@@ -130,6 +130,67 @@
                 android:textColor="#FFFFFF"
                 android:textSize="16sp" />
         </com.google.android.material.textfield.TextInputLayout>
+        <!-- Phone Input -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/layoutPhone"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:textColorHint="#94A3B8"
+            app:boxBackgroundColor="#1E293B"
+            app:boxCornerRadiusBottomEnd="16dp"
+            app:boxCornerRadiusBottomStart="16dp"
+            app:boxCornerRadiusTopEnd="16dp"
+            app:boxCornerRadiusTopStart="16dp"
+            app:boxStrokeColor="#334155"
+            app:boxStrokeWidth="1dp"
+            app:boxStrokeWidthFocused="2dp"
+            app:hintTextColor="#F59E0B"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/layoutEmail">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/inputPhone"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:hint="Phone Number"
+                android:inputType="phone"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Address Input -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/layoutAddress"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:textColorHint="#94A3B8"
+            app:boxBackgroundColor="#1E293B"
+            app:boxCornerRadiusBottomEnd="16dp"
+            app:boxCornerRadiusBottomStart="16dp"
+            app:boxCornerRadiusTopEnd="16dp"
+            app:boxCornerRadiusTopStart="16dp"
+            app:boxStrokeColor="#334155"
+            app:boxStrokeWidth="1dp"
+            app:boxStrokeWidthFocused="2dp"
+            app:hintTextColor="#F59E0B"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/layoutPhone">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/inputAddress"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:hint="Address"
+                android:inputType="textPostalAddress"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp" />
+        </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Password Input -->
         <com.google.android.material.textfield.TextInputLayout
@@ -152,7 +213,7 @@
             app:passwordToggleTint="#94A3B8"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/layoutEmail">
+            app:layout_constraintTop_toBottomOf="@id/layoutAddress">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/inputPassword"
