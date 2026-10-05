@@ -48,6 +48,9 @@ public interface SolarApi {
     @PATCH("api/reservations/{id}/cancel")
     Call<Void> cancelReservation(@Path("id") String id);
 
+    @PATCH("api/reservations/{id}/complete")
+    Call<Void> completeReservation(@Path("id") String id);
+
     // --- PROSUMERS ---
 
     @POST("api/prosumers")
