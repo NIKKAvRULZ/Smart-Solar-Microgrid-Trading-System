@@ -9,7 +9,8 @@ val localPropertiesFile = rootProject.file("local.properties")
 if (localPropertiesFile.exists()) {
     localProperties.load(localPropertiesFile.inputStream())
 }
-val apiBaseUrl = localProperties.getProperty("api.base.url") ?: "http://192.168.158.230:8080"
+// Fallback to your actual machine IP so physical devices and emulators connect seamlessly
+val apiBaseUrl = localProperties.getProperty("api.base.url") ?: "http://192.168.3.230:8080"
 
 android {
     namespace = "com.team.smartsolar"
