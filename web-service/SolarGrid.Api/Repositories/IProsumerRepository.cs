@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------------
+// File: IProsumerRepository.cs
+// Author: Gunasena R. K. R. M. S. K.
+// Purpose: System implementation for IProsumerRepository
+// -----------------------------------------------------------------------------
+
 using SolarGrid.Api.Models;
 
 namespace SolarGrid.Api.Repositories;

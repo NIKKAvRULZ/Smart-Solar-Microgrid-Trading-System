@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------------
+// File: Reservation.cs
+// Author: Perera W. A. N. I.
+// Purpose: System implementation for Reservation
+// -----------------------------------------------------------------------------
+
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using System.Text.Json.Serialization;
@@ -34,7 +40,9 @@ public class Reservation
 
     /// <summary>Pending | Approved | Completed | Cancelled</summary>
     [JsonPropertyName("status")]
-    public string Status { get; set; } = "Pending";
+    [BsonRepresentation(BsonType.String)]
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public ReservationStatus Status { get; set; } = ReservationStatus.Pending;
 
     /// <summary>Short QR dispatch code generated when a Grid Operator approves the booking.</summary>
     [JsonPropertyName("qrCode")]

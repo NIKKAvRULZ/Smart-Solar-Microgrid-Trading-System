@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------------
+// File: Prosumer.cs
+// Author: Gunasena R. K. R. M. S. K.
+// Purpose: System implementation for Prosumer
+// -----------------------------------------------------------------------------
+
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using System.Text.Json.Serialization;

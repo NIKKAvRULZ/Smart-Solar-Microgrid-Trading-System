@@ -1,3 +1,10 @@
+// -----------------------------------------------------------------------------
+// File: CreateBookingActivity.java
+// Author: Nithika Perera
+// Purpose: Provides the form for Prosumers to create new energy reservations.
+// Validates node capacity and enforces the 7-day advance booking constraint locally.
+// -----------------------------------------------------------------------------
+
 package com.team.smartsolar;
 
 import android.content.Intent;

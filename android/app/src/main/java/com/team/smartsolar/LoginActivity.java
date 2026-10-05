@@ -1,3 +1,10 @@
+// -----------------------------------------------------------------------------
+// File: LoginActivity.java
+// Author: Nithika Perera
+// Purpose: Handles Prosumer authentication, capturing credentials and storing
+// the issued JWT token securely in the local SQLite database for session persistence.
+// -----------------------------------------------------------------------------
+
 package com.team.smartsolar;
 
 import android.content.Intent;
@@ -66,7 +73,11 @@ public class LoginActivity extends AppCompatActivity {
                             Toast.makeText(LoginActivity.this, "Login Successful!", Toast.LENGTH_SHORT).show();
 
                             // Route to the dashboard
-                            startActivity(new Intent(LoginActivity.this, DashboardActivity.class));
+                            if ("GridOperator".equalsIgnoreCase(role)) {
+                                startActivity(new Intent(LoginActivity.this, OperatorDashboardActivity.class));
+                            } else {
+                                startActivity(new Intent(LoginActivity.this, DashboardActivity.class));
+                            }
                             finish(); // Close login screen
                         } else {
                             Toast.makeText(LoginActivity.this, "Invalid credentials.", Toast.LENGTH_SHORT).show();

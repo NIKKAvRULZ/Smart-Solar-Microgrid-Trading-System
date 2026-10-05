@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------------
+// File: Program.cs
+// Author: Gunasena R. K. R. M. S. K.
+// Purpose: System implementation for Program
+// -----------------------------------------------------------------------------
+
 using MongoDB.Driver;
 using SolarGrid.Api.Configuration;
 using SolarGrid.Api.Repositories;

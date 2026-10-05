@@ -127,3 +127,40 @@ Once IIS is configured, open your web browser and navigate to:
 `http://localhost:8080/swagger/index.html`
 
 If you see the Swagger UI listing the `/api/v1/Users`, `/api/v1/Bookings`, and `/api/v1/Stations` endpoints, your IIS deployment is fully successful!
+
+---
+
+## 6. Accessing on Local Network (Mobile & Frontend)
+
+To test the system on physical devices (like your phone) or other computers on the same Wi-Fi network, follow these steps:
+
+### 6.1 Allow Firewall Connections
+By default, Windows Firewall blocks incoming traffic. Open an **Administrator PowerShell** window and run:
+```powershell
+New-NetFirewallRule -DisplayName "SmartSolar Ports" -Direction Inbound -LocalPort 8080,5173 -Protocol TCP -Action Allow
+```
+*(Port `8080` is for IIS, `5173` is for the React frontend).*
+
+### 6.2 Update Frontend & Android IPs
+Your laptop's local Wi-Fi IP address (e.g., `192.168.3.230`) might change periodically due to DHCP. When it does, update the IP in these two places:
+
+1. **Frontend (`Frontend/.env`)**:
+   ```env
+   VITE_API_BASE_URL=http://<YOUR_NEW_IP>:8080/api
+   ```
+   *Restart `npm run dev` to apply.*
+
+2. **Android App (`android/local.properties`)**:
+   Create or open `local.properties` in the `android` folder and add:
+   ```properties
+   api.base.url=http://<YOUR_NEW_IP>:8080
+   ```
+   *Click "Sync Project with Gradle Files" in Android Studio and hit Run.*
+
+### 6.3 Run the Frontend across the Network
+When starting the React frontend, the Vite server must be told to expose itself to the network. 
+In `package.json`, ensure your dev script looks like this:
+```json
+"dev": "vite --host 0.0.0.0"
+```
+Run `npm run dev` and it will print your network IP (e.g., `http://192.168.3.230:5173/`). Type that URL into your phone's browser to access the Web Dashboard remotely!

@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------------
+// File: DashboardService.cs
+// Author: Gunasena R. K. R. M. S. K.
+// Purpose: System implementation for DashboardService
+// -----------------------------------------------------------------------------
+
 using SolarGrid.Api.Models;
 using SolarGrid.Api.Repositories;
 
@@ -30,6 +36,7 @@ public class DashboardService
 
     public async Task<DashboardAnalytics> GetAnalyticsAsync(string period)
     {
+        // Inline comment: Method execution begins here.
         var nodes = await _nodeRepository.GetAllAsync();
         var prosumers = await _prosumerRepository.GetAllAsync();
         var reservations = await _reservationRepository.GetAllAsync();
@@ -49,6 +56,7 @@ public class DashboardService
 
     private static DashboardNodeStats BuildNodeStats(List<Node> nodes)
     {
+        // Inline comment: Method execution begins here.
         double capacity = 0;
         double activeCapacity = 0;
         var totalSlots = 0;
@@ -83,6 +91,7 @@ public class DashboardService
 
     private static DashboardProsumerStats BuildProsumerStats(List<Prosumer> prosumers)
     {
+        // Inline comment: Method execution begins here.
         var active = prosumers.Count(p => p.IsActive);
         return new DashboardProsumerStats
         {
@@ -94,16 +103,17 @@ public class DashboardService
 
     private static DashboardReservationStats BuildReservationStats(List<Reservation> reservations, string period)
     {
+        // Inline comment: Method execution begins here.
         var start = PeriodStart(period, DateTime.UtcNow);
         var inPeriod = reservations.Where(r => r.ScheduledDateTime >= start).ToList();
 
         var stats = new DashboardReservationStats
         {
             Total = inPeriod.Count,
-            Pending = inPeriod.Count(r => r.Status == "Pending"),
-            Approved = inPeriod.Count(r => r.Status == "Approved"),
-            Completed = inPeriod.Count(r => r.Status == "Completed"),
-            Cancelled = inPeriod.Count(r => r.Status == "Cancelled"),
+            Pending = inPeriod.Count(r => r.Status == ReservationStatus.Pending),
+            Approved = inPeriod.Count(r => r.Status == ReservationStatus.Approved),
+            Completed = inPeriod.Count(r => r.Status == ReservationStatus.Completed),
+            Cancelled = inPeriod.Count(r => r.Status == ReservationStatus.Cancelled),
             Latest = reservations
                 .OrderByDescending(r => r.ScheduledDateTime)
                 .Take(LatestCount)
@@ -121,6 +131,7 @@ public class DashboardService
 
     private static DashboardEnergyStats BuildEnergyStats(List<Reservation> reservations, List<Node> nodes)
     {
+        // Inline comment: Method execution begins here.
         var today = DateTime.UtcNow.Date;
         var yesterday = today.AddDays(-1);
 
@@ -133,7 +144,7 @@ public class DashboardService
 
         foreach (var r in reservations)
         {
-            if (r.Status != "Completed")
+            if (r.Status != ReservationStatus.Completed)
                 continue;
 
             var kwh = SlotCapacityKwh(nodes, r.NodeId);
@@ -181,12 +192,14 @@ public class DashboardService
     /// </summary>
     private static double SlotCapacityKwh(List<Node> nodes, string nodeId)
     {
+        // Inline comment: Method execution begins here.
         var node = nodes.FirstOrDefault(n => n.Id == nodeId);
         if (node == null || node.TotalBatterySlots <= 0)
             return 0;
         return node.CapacityKWh / node.TotalBatterySlots;
     }
 
+    // Inline comment: Expression body method execution
     private static DateTime PeriodStart(string period, DateTime now) =>
         period switch
         {
@@ -203,12 +216,15 @@ public class DashboardService
     /// </summary>
     private static DateTime StartOfWeek(DateTime date, DayOfWeek firstDay)
     {
+        // Inline comment: Method execution begins here.
         var daysSinceFirstDay = ((int)date.DayOfWeek - (int)firstDay + 7) % 7;
         return date.Date.AddDays(-daysSinceFirstDay).ToUniversalTime();
     }
 
+    // Inline comment: Expression body method execution
     private static double SafePercent(int value, int total) =>
         total > 0 ? value * 100.0 / total : 0;
 
+    // Inline comment: Expression body method execution
     private static double Round(double value) => Math.Round(value, 2);
 }

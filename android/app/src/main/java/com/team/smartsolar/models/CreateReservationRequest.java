@@ -1,3 +1,10 @@
+// -----------------------------------------------------------------------------
+// File: CreateReservationRequest.java
+// Author: Nithika Perera
+// Purpose: DTO packaging new reservation parameters for submission to the
+// central API, subject to the 7-day advance booking window rule.
+// -----------------------------------------------------------------------------
+
 package com.team.smartsolar.models;
 
 import com.google.gson.annotations.SerializedName;

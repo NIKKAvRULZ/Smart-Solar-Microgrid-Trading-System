@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------------
+// File: ProsumerDTOs.cs
+// Author: Gunasena R. K. R. M. S. K.
+// Purpose: System implementation for ProsumerDTOs
+// -----------------------------------------------------------------------------
+
 namespace SolarGrid.Api.Models;
 
 public class CreateProsumerRequest

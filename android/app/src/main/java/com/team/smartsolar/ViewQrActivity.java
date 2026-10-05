@@ -1,3 +1,10 @@
+// -----------------------------------------------------------------------------
+// File: ViewQrActivity.java
+// Author: Nithika Perera
+// Purpose: Renders the secure dispatch QR code for approved energy reservations.
+// Generates the code locally using ZXing based on the payload received from the API.
+// -----------------------------------------------------------------------------
+
 package com.team.smartsolar;
 
 import android.graphics.Bitmap;
@@ -29,7 +36,8 @@ public class ViewQrActivity extends AppCompatActivity {
         txtQrDetails.setText(station + "\n" + date + " | " + energy + " kWh");
 
         // 2. Format the payload that Sasmitha's API will verify later
-        String payload = "SMARTSOLAR|" + station + "|" + date + "|" + energy;
+        String bookingId = getIntent().getStringExtra("BOOKING_ID");
+        String payload = bookingId != null ? bookingId : "INVALID_ID";
 
         // 3. Generate the QR Code Image
         try {

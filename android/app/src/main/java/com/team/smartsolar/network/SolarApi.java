@@ -1,6 +1,12 @@
+// -----------------------------------------------------------------------------
+// File: SolarApi.java
+// Author: Nithika Perera
+// Purpose: Retrofit interface defining all RESTful HTTP calls to the central
+// C# Web API. Serves as the sole data conduit, ensuring the app remains a thin client.
+// -----------------------------------------------------------------------------
+
 package com.team.smartsolar.network;
 
-import com.team.smartsolar.models.Booking;
 import com.team.smartsolar.models.CreateReservationRequest;
 import com.team.smartsolar.models.NodeResponse;
 import com.team.smartsolar.models.RegisterRequest;
@@ -25,9 +31,6 @@ public interface SolarApi {
     @POST("api/auth/login")
     Call<LoginResponse> login(@Body LoginRequest request);
 
-    @POST("api/users")
-    Call<Void> registerUser(@Body RegisterRequest request);
-
     // --- NODES (Map Grid) ---
     @GET("api/nodes")
     Call<List<Station>> getNodes();
@@ -45,7 +48,14 @@ public interface SolarApi {
     @PATCH("api/reservations/{id}/cancel")
     Call<Void> cancelReservation(@Path("id") String id);
 
+    @PATCH("api/reservations/{id}/complete")
+    Call<Void> completeReservation(@Path("id") String id);
+
     // --- PROSUMERS ---
+
+    @POST("api/prosumers")
+    Call<Void> registerProsumer(@Body RegisterRequest profile);
+
     @GET("api/prosumers/{nic}")
     Call<com.team.smartsolar.models.ProsumerProfile> getProfile(@Path("nic") String nic);
 

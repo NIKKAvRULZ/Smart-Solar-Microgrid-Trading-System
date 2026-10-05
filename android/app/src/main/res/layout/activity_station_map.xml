@@ -1,155 +1,190 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#0F172A">
 
-    <!-- Full Screen Map -->
+    <!-- Full Screen Map Base -->
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/fullMap"
         android:name="com.google.android.gms.maps.SupportMapFragment"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Top Navigation Bar -->
-    <LinearLayout
+    <!-- Glassmorphism-style Top Header -->
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/topHeader"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:background="#E60F172A"
+        android:elevation="6dp"
+        android:paddingHorizontal="16dp"
         android:paddingTop="48dp"
         android:paddingBottom="16dp"
-        android:paddingHorizontal="16dp"
-        android:background="#E60F172A"
-        android:gravity="center_vertical"
-        android:layout_alignParentTop="true"
-        android:elevation="6dp">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <TextView
             android:id="@+id/btnBackFromMap"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="← Back"
-            android:textColor="#F59E0B"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:paddingVertical="8dp"
-            android:paddingEnd="16dp"
             android:background="?attr/selectableItemBackground"
             android:clickable="true"
-            android:focusable="true"/>
+            android:focusable="true"
+            android:fontFamily="sans-serif-medium"
+            android:paddingVertical="8dp"
+            android:paddingEnd="16dp"
+            android:text="← Back"
+            android:textColor="#F59E0B"
+            android:textSize="17sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:fontFamily="sans-serif-medium"
             android:text="Grid Explorer"
             android:textColor="#FFFFFF"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:layout_marginStart="8dp"/>
+            android:textSize="17sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnZoomToStations"
             android:layout_width="wrap_content"
             android:layout_height="40dp"
-            android:text="VIEW ALL"
+            android:fontFamily="sans-serif-medium"
+            android:text="View All"
+            android:textAllCaps="false"
             android:textColor="#0F172A"
-            android:textSize="11sp"
-            android:textStyle="bold"
+            android:textSize="14sp"
             app:backgroundTint="#F59E0B"
-            app:cornerRadius="20dp"/>
-    </LinearLayout>
+            app:cornerRadius="20dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <!-- Horizontal Station List Drawer (Now anchored to the bottom) -->
+    <!-- Horizontal Station List Drawer -->
     <LinearLayout
         android:id="@+id/layoutStationsDrawer"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="32dp"
         android:orientation="vertical"
-        android:paddingBottom="32dp"
-        android:background="#00000000">
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
 
-        <TextView
+        <!-- Converted blocky label to an iOS-style rounded badge -->
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="AVAILABLE GRID STATIONS"
-            android:textColor="#0F172A"
-            android:textSize="11sp"
-            android:textStyle="bold"
             android:layout_marginStart="16dp"
-            android:layout_marginBottom="8dp"
-            android:background="#F59E0B"
-            android:paddingHorizontal="8dp"
-            android:paddingVertical="4dp"/>
+            android:layout_marginBottom="12dp"
+            app:cardBackgroundColor="#F59E0B"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="0dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="4dp"
+                android:text="Available Stations"
+                android:textColor="#0F172A"
+                android:textSize="12sp" />
+        </com.google.android.material.card.MaterialCardView>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerStations"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
             android:clipToPadding="false"
+            android:orientation="horizontal"
             android:paddingStart="16dp"
-            android:paddingEnd="4dp"/>
+            android:paddingEnd="4dp" />
     </LinearLayout>
 
     <!-- Selected Station Bottom Sheet Card -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cardStationDetails"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
         android:layout_margin="16dp"
         android:visibility="gone"
         app:cardBackgroundColor="#1E293B"
         app:cardCornerRadius="24dp"
-        app:cardElevation="10dp"
-        app:strokeWidth="1dp"
-        app:strokeColor="#334155">
+        app:cardElevation="12dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:strokeColor="#334155"
+        app:strokeWidth="1dp">
 
-        <LinearLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="20dp">
+            android:padding="24dp">
 
             <TextView
                 android:id="@+id/txtSheetStationName"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
                 android:text="Station Name"
                 android:textColor="#FFFFFF"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:layout_marginBottom="14dp"/>
+                android:textSize="22sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
+            <!-- Metrics Row mapped to match Dashboard style -->
             <LinearLayout
-                android:layout_width="match_parent"
+                android:id="@+id/layoutSheetMetrics"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:baselineAligned="false"
                 android:orientation="horizontal"
-                android:layout_marginBottom="18dp">
+                android:weightSum="2"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/txtSheetStationName">
 
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:orientation="vertical">
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif"
                         android:text="Available Slots"
                         android:textColor="#94A3B8"
-                        android:textSize="12sp"/>
+                        android:textSize="13sp" />
+
                     <TextView
                         android:id="@+id/txtSheetSlots"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-medium"
                         android:text="0"
                         android:textColor="#10B981"
-                        android:textStyle="bold"
-                        android:textSize="18sp"/>
+                        android:textSize="28sp" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -157,33 +192,44 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:orientation="vertical">
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif"
                         android:text="Remaining Energy"
                         android:textColor="#94A3B8"
-                        android:textSize="12sp"/>
+                        android:textSize="13sp" />
+
                     <TextView
                         android:id="@+id/txtSheetEnergy"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-medium"
                         android:text="0 kWh"
                         android:textColor="#F59E0B"
-                        android:textStyle="bold"
-                        android:textSize="18sp"/>
+                        android:textSize="28sp" />
                 </LinearLayout>
             </LinearLayout>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSheetBook"
-                android:layout_width="match_parent"
-                android:layout_height="55dp"
-                android:text="BOOK THIS STATION"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_marginTop="32dp"
+                android:fontFamily="sans-serif-medium"
+                android:text="Book This Station"
+                android:textAllCaps="false"
                 android:textColor="#0F172A"
-                android:textStyle="bold"
+                android:textSize="17sp"
                 app:backgroundTint="#F59E0B"
-                app:cornerRadius="12dp"/>
-        </LinearLayout>
+                app:cornerRadius="28dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/layoutSheetMetrics" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.card.MaterialCardView>
 
-</RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

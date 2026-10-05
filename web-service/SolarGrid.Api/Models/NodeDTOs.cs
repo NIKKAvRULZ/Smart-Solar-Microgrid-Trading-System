@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------------
+// File: NodeDTOs.cs
+// Author: Gunasena R. K. R. M. S. K.
+// Purpose: System implementation for NodeDTOs
+// -----------------------------------------------------------------------------
+
 namespace SolarGrid.Api.Models;
 
 public class CreateNodeRequest

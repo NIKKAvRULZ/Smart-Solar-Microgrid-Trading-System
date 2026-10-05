@@ -1,3 +1,10 @@
+// -----------------------------------------------------------------------------
+// File: RegisterActivity.java
+// Author: Nithika Perera
+// Purpose: Handles the Prosumer account creation process. Keys the user to their
+// NIC as requested by the assignment specification.
+// -----------------------------------------------------------------------------
+
 package com.team.smartsolar;
 
 import android.content.Intent;
@@ -19,7 +26,7 @@ import retrofit2.Response;
 
 public class RegisterActivity extends AppCompatActivity {
 
-    private EditText inputNic, inputName, inputEmail, inputPassword;
+    private EditText inputNic, inputName, inputEmail, inputPhone, inputAddress, inputPassword;
     private Button btnRegister;
     private TextView txtGoToLogin;
 
@@ -31,6 +38,8 @@ public class RegisterActivity extends AppCompatActivity {
         inputNic = findViewById(R.id.inputNic);
         inputName = findViewById(R.id.inputName);
         inputEmail = findViewById(R.id.inputEmail);
+        inputPhone = findViewById(R.id.inputPhone);
+        inputAddress = findViewById(R.id.inputAddress);
         inputPassword = findViewById(R.id.inputPassword);
         btnRegister = findViewById(R.id.btnRegister);
         txtGoToLogin = findViewById(R.id.txtGoToLogin);
@@ -56,9 +65,11 @@ public class RegisterActivity extends AppCompatActivity {
         String nic = inputNic.getText().toString().trim();
         String name = inputName.getText().toString().trim();
         String email = inputEmail.getText().toString().trim();
+        String phone = inputPhone.getText().toString().trim();
+        String address = inputAddress.getText().toString().trim();
         String password = inputPassword.getText().toString().trim();
 
-        if (nic.isEmpty() || name.isEmpty() || email.isEmpty() || password.isEmpty()) {
+        if (nic.isEmpty() || name.isEmpty() || email.isEmpty() || phone.isEmpty() || address.isEmpty() || password.isEmpty()) {
             Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -69,18 +80,17 @@ public class RegisterActivity extends AppCompatActivity {
         }
 
         // 1. Package the variables into the JSON model expected by the backend
-        // We map NIC to username, and hardcode the role as "Prosumer"
-        RegisterRequest request = new RegisterRequest(nic, password, name, email, "Prosumer");
+        RegisterRequest request = new RegisterRequest(nic, password, name, email, phone, address);
 
         // 2. Send to C# API endpoint using Retrofit
         SolarApi api = RetrofitClient.getClient().create(SolarApi.class);
-        api.registerUser(request).enqueue(new Callback<Void>() {
+        api.registerProsumer(request).enqueue(new Callback<Void>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {
                     Toast.makeText(RegisterActivity.this, "Registration Successful! Please log in.", Toast.LENGTH_LONG).show();
 
-                    // Route back to Login
+                    // Route back to Log in
                     Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
                     startActivity(intent);
                     finish();

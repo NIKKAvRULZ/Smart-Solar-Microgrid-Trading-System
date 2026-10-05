@@ -1,3 +1,10 @@
+// -----------------------------------------------------------------------------
+// File: ModifyBookingActivity.java
+// Author: Nithika Perera
+// Purpose: Allows Prosumers to reschedule or cancel an existing booking.
+// Validates the 12-hour notice rule locally before submitting to the API.
+// -----------------------------------------------------------------------------
+
 package com.team.smartsolar;
 
 import android.app.DatePickerDialog;

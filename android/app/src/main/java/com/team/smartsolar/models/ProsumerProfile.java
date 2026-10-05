@@ -1,3 +1,10 @@
+// -----------------------------------------------------------------------------
+// File: ProsumerProfile.java
+// Author: Nithika Perera
+// Purpose: DTO for the Prosumer profile information, used for parsing network
+// responses and persisting user data to the local SQLite cache.
+// -----------------------------------------------------------------------------
+
 package com.team.smartsolar.models;
 
 import com.google.gson.annotations.SerializedName;

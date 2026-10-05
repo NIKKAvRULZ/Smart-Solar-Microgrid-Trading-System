@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------------
+// File: MyBookingsActivity.java
+// Author: Nithika Perera
+// Purpose: Displays a list of the Prosumer's current and past reservations.
+// Provides local filtering by status and routes to modification or QR views.
+// -----------------------------------------------------------------------------
 package com.team.smartsolar;
 
 import android.content.Intent;

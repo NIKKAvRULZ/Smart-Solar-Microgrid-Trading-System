@@ -1,3 +1,10 @@
+// -----------------------------------------------------------------------------
+// File: NodeResponse.java
+// Author: Nithika Perera
+// Purpose: DTO representing a microgrid node's data from the server, mapping
+// exact C# JSON keys to local Android variables for map and dropdown rendering.
+// -----------------------------------------------------------------------------
+
 package com.team.smartsolar.models;
 
 import com.google.gson.annotations.SerializedName;

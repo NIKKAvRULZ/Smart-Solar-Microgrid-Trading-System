@@ -1,3 +1,10 @@
+// -----------------------------------------------------------------------------
+// File: BookingSummaryActivity.java
+// Author: Nithika Perera
+// Purpose: Displays a static confirmation view of the booking details immediately
+// after a successful reservation creation.
+// -----------------------------------------------------------------------------
+
 package com.team.smartsolar;
 
 import android.content.Intent;

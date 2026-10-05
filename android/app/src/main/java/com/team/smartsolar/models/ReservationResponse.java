@@ -1,3 +1,10 @@
+// -----------------------------------------------------------------------------
+// File: ReservationResponse.java
+// Author: Nithika Perera
+// Purpose: DTO for parsing incoming reservation details retrieved from the
+// central API, including tracking the booking lifecycle status.
+// -----------------------------------------------------------------------------
+
 package com.team.smartsolar.models;
 
 import com.google.gson.annotations.SerializedName;

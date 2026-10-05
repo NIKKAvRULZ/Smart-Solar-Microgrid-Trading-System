@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------------
+// File: ReservationDTOs.cs
+// Author: Perera W. A. N. I.
+// Purpose: System implementation for ReservationDTOs
+// -----------------------------------------------------------------------------
+
 namespace SolarGrid.Api.Models;
 
 public class CreateReservationRequest

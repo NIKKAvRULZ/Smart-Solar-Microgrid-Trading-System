@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------------
+// File: AppUser.cs
+// Author: Gunasena R. K. R. M. S. K.
+// Purpose: System implementation for AppUser
+// -----------------------------------------------------------------------------
+
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using System.Text.Json.Serialization;
@@ -30,7 +36,9 @@ public class AppUser
 
     /// <summary>Backoffice | GridOperator</summary>
     [JsonPropertyName("role")]
-    public string Role { get; set; } = "GridOperator";
+    [BsonRepresentation(BsonType.String)]
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public UserRole Role { get; set; } = UserRole.GridOperator;
 
     [JsonPropertyName("isActive")]
     public bool IsActive { get; set; } = true;

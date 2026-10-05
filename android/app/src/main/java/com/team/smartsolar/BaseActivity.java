@@ -1,3 +1,10 @@
+// -----------------------------------------------------------------------------
+// File: BaseActivity.java
+// Author: Nithika Perera
+// Purpose: Core activity extended by all primary screens to manage the global
+// bottom navigation bar state and seamless tab switching.
+// -----------------------------------------------------------------------------
+
 package com.team.smartsolar;
 
 import android.content.Intent;

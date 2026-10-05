@@ -291,7 +291,9 @@ erDiagram
 
 ## 🎥 Demo Video
 
-📺 **[Watch the demo video](#)** *(replace this link with your YouTube/OneDrive video — required in the submission, ≤5 minutes)*
+📺 **[Watch the demo video](https://mysliit-my.sharepoint.com/:v:/g/personal/it22125798_my_sliit_lk/IQAT5ncfRk5VTLViHJSQE4-pAWIXpsA3bw4B9C5Zt2Nhm6w?nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJPbmVEcml2ZUZvckJ1c2luZXNzIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXciLCJyZWZlcnJhbFZpZXciOiJNeUZpbGVzTGlua0NvcHkifX0&e=3WYa1h)**
+
+🐙 **[View GitHub Repository](https://github.com/NIKKAvRULZ/Smart-Solar-Microgrid-Trading-System)**
 
 <br/>
 

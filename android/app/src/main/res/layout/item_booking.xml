@@ -1,62 +1,86 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="24dp"
     android:layout_marginVertical="8dp"
     app:cardBackgroundColor="#1E293B"
-    app:cardCornerRadius="16dp"
+    app:cardCornerRadius="20dp"
     app:cardElevation="0dp"
-    app:strokeWidth="1dp"
-    app:strokeColor="#334155">
+    app:strokeColor="#334155"
+    app:strokeWidth="1dp">
 
-    <RelativeLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="20dp">
 
-        <TextView
-            android:id="@+id/txtItemStation"
+        <!-- Pill-shaped Status Badge container mapped to the top right -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardStatusContainer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            app:cardBackgroundColor="#0F172A"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="0dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <!-- ID strictly preserved for backend recycling -->
+            <TextView
+                android:id="@+id/txtItemStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
+                android:letterSpacing="0.05"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="6dp"
+                android:text="STATUS"
+                android:textColor="#10B981"
+                android:textSize="11sp" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Dynamic width prevents long station names from overlapping the status badge -->
+        <TextView
+            android:id="@+id/txtItemStation"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:fontFamily="sans-serif-medium"
             android:text="Station Name"
             android:textColor="#FFFFFF"
             android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/txtItemStatus"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:text="STATUS"
-            android:textColor="#10B981"
-            android:textSize="12sp"
-            android:textStyle="bold"
-            android:background="#0F172A"
-            android:paddingHorizontal="12dp"
-            android:paddingVertical="6dp" />
+            app:layout_constraintBottom_toBottomOf="@+id/cardStatusContainer"
+            app:layout_constraintEnd_toStartOf="@id/cardStatusContainer"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/cardStatusContainer" />
 
         <TextView
             android:id="@+id/txtItemDateTime"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_below="@id/txtItemStation"
+            android:layout_marginTop="16dp"
+            android:fontFamily="sans-serif"
             android:text="YYYY-MM-DD | 00:00 - 00:00"
             android:textColor="#94A3B8"
-            android:layout_marginTop="8dp" />
+            android:textSize="14sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/txtItemStation" />
 
         <TextView
             android:id="@+id/txtItemEnergy"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_below="@id/txtItemDateTime"
+            android:layout_marginTop="6dp"
+            android:fontFamily="sans-serif-medium"
             android:text="Reserved: 0.0 kWh"
             android:textColor="#F59E0B"
-            android:textStyle="bold"
-            android:layout_marginTop="8dp" />
+            android:textSize="15sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/txtItemDateTime" />
 
-    </RelativeLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>
